@@ -13,6 +13,7 @@ import { RealtimeModule } from './realtime/realtime.module';
 import { CodegenModule } from './codegen/codegen.module';
 import { AiModule } from './ai/ai.module';
 import { ValidationModule } from './validation/validation.module';
+import { UmlVisionModule } from './vision/uml-vision.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ValidationModule } from './validation/validation.module';
     CodegenModule,
     ValidationModule,
     AiModule,
+    UmlVisionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

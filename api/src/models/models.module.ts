@@ -8,5 +8,6 @@ import { ProjectRoleGuard } from '../common/guards/project-role.guard';
   imports: [PrismaModule],
   providers: [ModelsService, ProjectRoleGuard],
   controllers: [ModelsController],
+  exports: [ModelsService],
 })
 export class ModelsModule {}
