@@ -3,13 +3,14 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy.conf.json",
+    "dev:web": "ng serve web --proxy-config proxy.conf.json",
+    "dev:api": "npm --workspace api run start:dev",
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build:libs": "ng build @db-uml/domain-model --watch & ng build @db-uml/collab-core --watch & ng build @db-uml/ui-diagram --watch",
-    "dev:api": "npm --workspace api run start:dev",
-    "build:api": "npm --workspace api run build"
+    "build:api": "npm --workspace api run build"
   },
   "prettier": {
     "printWidth": 100,
@@ -33,6 +34,7 @@
     "@angular/router": "^20.3.0",
     "@prisma/client": "^6.19.0",
     "bcryptjs": "^3.0.3",
+    "concurrently": "^9.2.1",
     "gojs": "^3.0.26",
     "lodash-es": "^4.17.21",
     "rxjs": "~7.8.0",
