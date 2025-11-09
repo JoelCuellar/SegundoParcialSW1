@@ -44,3 +44,10 @@ Thumbs.db
 api/node_modules
 api/npm-debug.log
 api/yarn-error.log
+
+.angular
+
+.firebase
+.windsurf
+
+api/dist/
