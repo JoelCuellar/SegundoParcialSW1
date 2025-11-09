@@ -10,7 +10,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build:libs": "ng build @db-uml/domain-model --watch & ng build @db-uml/collab-core --watch & ng build @db-uml/ui-diagram --watch",
-    "build:api": "npm --workspace api run build"
+    "build:api": "npm --workspace api run build",
+    "prisma:migrate:dev": "npm --workspace api run prisma:migrate:dev"
   },
   "prettier": {
     "printWidth": 100,
@@ -24,6 +25,7 @@
       }
     ]
   },
+  "workspaces": ["api"],
   "private": true,
   "dependencies": {
     "@angular/common": "^20.3.0",
