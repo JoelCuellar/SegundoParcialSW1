@@ -55,7 +55,12 @@ const modelV2 = {
                 ...e,
                 attrs: [
                     ...e.attrs,
-                    { name: 'created_at', type: 'timestamp', nullable: false, default: 'now()' },
+                    {
+                        name: 'created_at',
+                        type: 'timestamp',
+                        nullable: false,
+                        default: 'now()',
+                    },
                 ],
             }
             : e),
@@ -86,18 +91,42 @@ async function main() {
     const [owner, editor, reader] = await Promise.all([
         prisma.user.upsert({
             where: { email: 'owner@example.com' },
-            update: { name: 'Owner', passwordHash: hash('Owner123!'), status: 'ACTIVE' },
-            create: { email: 'owner@example.com', name: 'Owner', passwordHash: hash('Owner123!') },
+            update: {
+                name: 'Owner',
+                passwordHash: hash('Owner123!'),
+                status: 'ACTIVE',
+            },
+            create: {
+                email: 'owner@example.com',
+                name: 'Owner',
+                passwordHash: hash('Owner123!'),
+            },
         }),
         prisma.user.upsert({
             where: { email: 'editor@example.com' },
-            update: { name: 'Editor', passwordHash: hash('Editor123!'), status: 'ACTIVE' },
-            create: { email: 'editor@example.com', name: 'Editor', passwordHash: hash('Editor123!') },
+            update: {
+                name: 'Editor',
+                passwordHash: hash('Editor123!'),
+                status: 'ACTIVE',
+            },
+            create: {
+                email: 'editor@example.com',
+                name: 'Editor',
+                passwordHash: hash('Editor123!'),
+            },
         }),
         prisma.user.upsert({
             where: { email: 'reader@example.com' },
-            update: { name: 'Reader', passwordHash: hash('Reader123!'), status: 'ACTIVE' },
-            create: { email: 'reader@example.com', name: 'Reader', passwordHash: hash('Reader123!') },
+            update: {
+                name: 'Reader',
+                passwordHash: hash('Reader123!'),
+                status: 'ACTIVE',
+            },
+            create: {
+                email: 'reader@example.com',
+                name: 'Reader',
+                passwordHash: hash('Reader123!'),
+            },
         }),
     ]);
     const wsName = 'Equipo Demo';
@@ -166,7 +195,9 @@ async function main() {
         },
     });
     const featureBranch = await prisma.branch.upsert({
-        where: { projectId_name: { projectId: project.id, name: 'feature/normalize' } },
+        where: {
+            projectId_name: { projectId: project.id, name: 'feature/normalize' },
+        },
         update: {},
         create: {
             projectId: project.id,
@@ -237,9 +268,12 @@ async function main() {
             report: {
                 errors: [],
                 warnings: [
-                    { code: 'IDX_SUGGEST', message: 'Considera índice en orders.user_id' },
+                    {
+                        code: 'IDX_SUGGEST',
+                        message: 'Considera índice en orders.user_id',
+                    },
                 ],
-                normalForms: { '1NF': true, '2NF': true, '3NF': true, 'BCNF': true },
+                normalForms: { '1NF': true, '2NF': true, '3NF': true, BCNF: true },
             },
             finishedAt: new Date(),
         },

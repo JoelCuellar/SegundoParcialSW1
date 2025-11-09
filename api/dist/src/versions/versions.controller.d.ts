@@ -102,7 +102,7 @@ export declare class VersionsController {
         projectId: string;
         message: string | null;
         content: import("@prisma/client/runtime/library").JsonValue;
-        ydocSnapshot: Uint8Array | null;
+        ydocSnapshot: import("@prisma/client/runtime/library").Bytes | null;
         branchId: string;
         parentVersionId: string | null;
         authorId: string;

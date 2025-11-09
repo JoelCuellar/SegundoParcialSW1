@@ -1,26 +1,33 @@
 import { PrismaService } from '../prisma/prisma.service';
+type EntityAttr = {
+    name: string;
+    type: string;
+    pk?: boolean;
+    unique?: boolean;
+    nullable?: boolean;
+};
+type Entity = {
+    id?: string;
+    name: string;
+    stereotype?: string;
+    isInterface?: boolean;
+    isAbstract?: boolean;
+    attrs: EntityAttr[];
+};
+type RelationKind = 'association' | 'aggregation' | 'composition' | 'generalization' | 'realization' | 'dependency' | 'inheritance';
+type Relation = {
+    from: string;
+    to: string;
+    kind: RelationKind;
+    fromCard?: string;
+    via?: string;
+    toCard?: string;
+    fk?: string;
+    onDelete?: 'cascade' | 'restrict' | 'setnull';
+};
 type DSL = {
-    entities: Array<{
-        id?: string;
-        name: string;
-        stereotype?: string;
-        attrs: Array<{
-            name: string;
-            type: string;
-            pk?: boolean;
-            unique?: boolean;
-            nullable?: boolean;
-        }>;
-    }>;
-    relations: Array<{
-        from: string;
-        to: string;
-        kind: 'association' | 'aggregation' | 'composition';
-        fromCard?: string;
-        toCard?: string;
-        fk?: string;
-        onDelete?: 'cascade' | 'restrict' | 'setnull';
-    }>;
+    entities: Entity[];
+    relations: Relation[];
     constraints?: any[];
 };
 export declare class ModelsService {
@@ -33,7 +40,6 @@ export declare class ModelsService {
         versionId: string;
         content: import("@prisma/client/runtime/library").JsonValue;
     }>;
-    private validateDSL;
     saveNewVersion(projectId: string, userId: string, body: {
         branchId?: string;
         message?: string;

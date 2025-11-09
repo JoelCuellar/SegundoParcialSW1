@@ -92,9 +92,12 @@ export class ProjectsComponent implements OnInit {
     this.loading.set(true)
     this.api.create(wsId, { name: name!, description: description || undefined, tags: tagArr }).subscribe({
       next: () => {
-        this.form.patchValue({ name: "", description: "", tags: "" })
-        this.reload()
-        this.loading.set(false)
+        this.form.reset({ name: '', description: '', tags: '' }, { emitEvent: false });
+      this.form.markAsPristine();
+      this.form.markAsUntouched();
+
+      this.reload();
+      this.loading.set(false);
       },
       error: (e) => {
         this.error.set(e?.error?.message ?? "No se pudo crear")

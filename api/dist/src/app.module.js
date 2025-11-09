@@ -20,6 +20,8 @@ const collaborators_module_1 = require("./collaborators/collaborators.module");
 const versions_module_1 = require("./versions/versions.module");
 const realtime_module_1 = require("./realtime/realtime.module");
 const codegen_module_1 = require("./codegen/codegen.module");
+const ai_module_1 = require("./ai/ai.module");
+const validation_module_1 = require("./validation/validation.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -35,7 +37,12 @@ exports.AppModule = AppModule = __decorate([
             collaborators_module_1.CollaboratorsModule,
             versions_module_1.VersionsModule,
             realtime_module_1.RealtimeModule,
-            codegen_module_1.CodegenModule
+            codegen_module_1.CodegenModule,
+            versions_module_1.VersionsModule,
+            realtime_module_1.RealtimeModule,
+            codegen_module_1.CodegenModule,
+            validation_module_1.ValidationModule,
+            ai_module_1.AiModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

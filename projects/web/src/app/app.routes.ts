@@ -7,6 +7,7 @@ import { ModelEditorComponent } from './features/editor/editor';
 import { CollaboratorsComponent } from './features/collaborators/collaborators';
 import { VersionsComponent } from './features/versions/versions';
 import { ArtifactsComponent } from './features/artifacts/artifacts';
+import { QualityIaComponent } from './features/quality/quality-ia';
 
 export const routes: Routes = [
   { path: 'login', component: AuthComponent },
@@ -35,5 +36,6 @@ export const routes: Routes = [
 
   { path: '', pathMatch: 'full', redirectTo: 'app' },
   { path: '**', redirectTo: 'app' },
+   { path: 'app/projects/:projectId/quality', canActivate: [authGuard], component: QualityIaComponent },
 
 ];
