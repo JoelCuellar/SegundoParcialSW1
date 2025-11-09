@@ -29,6 +29,12 @@
           <span class="status-text">{{ status() }}</span>
         </div>
       </div>
+      <div class="toolbar-group">
+  <input type="file" #umlImage accept="image/*" hidden (change)="onUmlImageSelected($event)" />
+  <button type="button" class="btn-outline" (click)="umlImage.click()">
+    Importar imagen UML
+  </button>
+</div>
       
       <div #diagramDiv class="diagram-canvas"></div>
     </div>

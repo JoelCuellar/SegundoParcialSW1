@@ -22,6 +22,7 @@ const realtime_module_1 = require("./realtime/realtime.module");
 const codegen_module_1 = require("./codegen/codegen.module");
 const ai_module_1 = require("./ai/ai.module");
 const validation_module_1 = require("./validation/validation.module");
+const uml_vision_module_1 = require("./vision/uml-vision.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -43,6 +44,7 @@ exports.AppModule = AppModule = __decorate([
             codegen_module_1.CodegenModule,
             validation_module_1.ValidationModule,
             ai_module_1.AiModule,
+            uml_vision_module_1.UmlVisionModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

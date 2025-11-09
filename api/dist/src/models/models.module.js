@@ -20,6 +20,7 @@ exports.ModelsModule = ModelsModule = __decorate([
         imports: [prisma_module_1.PrismaModule],
         providers: [models_service_1.ModelsService, project_role_guard_1.ProjectRoleGuard],
         controllers: [models_controller_1.ModelsController],
+        exports: [models_service_1.ModelsService],
     })
 ], ModelsModule);
 //# sourceMappingURL=models.module.js.map

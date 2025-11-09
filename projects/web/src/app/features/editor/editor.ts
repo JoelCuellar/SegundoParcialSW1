@@ -21,6 +21,7 @@ import { HeaderComponent } from '../../shared/components/header/header';
 import { CardComponent } from '../../shared/components/card/card';
 import { FormFieldComponent } from '../../shared/components/form-field/form-field';
 import { RealtimeService } from '../../core/services/realtime';
+import { UmlImportApi } from '../../core/services/uml-import-api';
 
 type EntityAttr = {
   name: string;
@@ -91,6 +92,7 @@ export class ModelEditorComponent implements OnInit, OnDestroy {
   private remoteOff?: () => void;
   private applyingRemote = false;
   private env = inject(EnvironmentInjector);
+  private umlApi = inject(UmlImportApi);
 
   // Forms
   nodeForm = this.fb.group({
@@ -145,6 +147,34 @@ export class ModelEditorComponent implements OnInit, OnDestroy {
       this.status.set('Se vinculó tabla intermedia (Association Class) para relación M:N');
     }
   }
+  onUmlImageSelected(ev: Event) {
+  const input = ev.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  this.status.set('Importando imagen UML…');
+  this.umlApi.import(this.projectId(), file, {
+    branchId: this.branchId(),
+    merge: 'merge', // usa 'replace' si quieres reemplazar
+    message: 'import: imagen UML',
+  }).subscribe({
+    next: () => {
+      // Recargar contenido desde la versión más reciente de la rama actual
+      this.api.getCurrent(this.projectId(), this.branchId()).subscribe({
+        next: (res) => {
+          this.fromDSL(res.content as any);
+          this.layout(); // opcional: reordenar
+          this.status.set('Importación completada');
+        },
+        error: (e) => this.status.set(e?.error?.message ?? 'Error al recargar'),
+      });
+    },
+    error: (e) => this.status.set(e?.error?.message ?? 'Error al importar'),
+  });
+
+  // Permitir volver a elegir el mismo archivo
+  input.value = '';
+}
 
   // NEW: crear relación desde el formulario
   createRelationFromForm() {
