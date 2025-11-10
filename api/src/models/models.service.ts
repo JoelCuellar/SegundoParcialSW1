@@ -90,6 +90,15 @@ function normCard(c?: string): '1' | '0..1' | 'N' | undefined {
   if (!c) return undefined;
   const s = String(c).trim().toLowerCase();
 
+  // ↯ NUEVO: tolerar formatos comunes con un solo separador
+  const m01 = s.match(/^([01])\s*[,.\-/:]\s*([01])$/);
+  if (m01) {
+    const a = Number(m01[1]);
+    const b = Number(m01[2]);
+    if (a === 0 && b === 1) return '0..1';
+    if (a === 1 && b === 0) return '1';
+  }
+
   // básicos
   if (s === '1' || s === '1..1') return '1';
   if (s === '0..1' || s === '01' || s === '?') return '0..1';
@@ -99,7 +108,6 @@ function normCard(c?: string): '1' | '0..1' | 'N' | undefined {
   if (/^\d+$/.test(s)) return Number(s) <= 1 ? '1' : 'N';
 
   // rangos colapsados a la tríada
-  // 0..N / 1..N / 1..* / 0..* / 1..n / 0..n  -> N
   if (/^(0|1)\.\.(\*|n)$/i.test(s)) return 'N';
   if (/^(1|0)\.\.\*$/i.test(s)) return 'N';
   if (/^(1|0)\.\.n$/i.test(s)) return 'N';
@@ -107,7 +115,7 @@ function normCard(c?: string): '1' | '0..1' | 'N' | undefined {
   // N..0 / N..1 / *..0 / *..1 / n..0 / n..1 -> N
   if (/^(\*|n)\.\.(0|1)$/i.test(s)) return 'N';
 
-  // a..b con dígitos -> 0..1 => 0..1; si el tope >1 => N; si tope <=1 => 1
+  // a..b con dígitos
   const m = s.match(/^(\d+)\.\.(\d+)$/);
   if (m) {
     const a = Number(m[1]), b = Number(m[2]);
@@ -129,6 +137,36 @@ function isMany(c?: string) {
 function normalizeKind(kind: RelationKind): RelationKind {
   return kind === 'inheritance' ? 'generalization' : kind;
 }
+function sanitizeViaLabels(dsl: DSL): DSL {
+  const copy: DSL = JSON.parse(JSON.stringify(dsl));
+  const entityNames = new Set(
+    (copy.entities ?? []).map((e) => e.name.trim().toLowerCase()),
+  );
+
+  for (const r of copy.relations ?? []) {
+    const viaRaw = (r as any).via ? String((r as any).via).trim() : '';
+    if (!viaRaw) continue;
+
+    const viaName = viaRaw.toLowerCase();
+    const assocish =
+      r.kind === 'association' ||
+      r.kind === 'aggregation' ||
+      r.kind === 'composition';
+    const fromMany = normCard(r.fromCard) === 'N';
+    const toMany = normCard(r.toCard) === 'N';
+    const joinExists = entityNames.has(viaName);
+
+    // Solo tiene sentido mantener 'via' si:
+    //   (a) es relación asociativa
+    //   (b) es M:N
+    //   (c) la entidad intermedia realmente existe
+    if (!assocish || !fromMany || !toMany || !joinExists) {
+      delete (r as any).via; // era una etiqueta/rol, no una clase intermedia
+    }
+  }
+  return copy;
+}
+
 function normalizeLegacyKinds(dsl: DSL): DSL {
   const copy: DSL = JSON.parse(JSON.stringify(dsl));
   for (const r of copy.relations ?? []) {
@@ -848,9 +886,14 @@ export class ModelsService {
     // 0) Normalizar alias heredados (many-to-one, etc. + inheritance)
     const normalized = normalizeLegacyKinds(content);
 
-    const finalDsl = expandManyToMany(normalized);
+    // NUEVO: eliminar 'via' inválidas (etiquetas verbales y no-M:N)
+    const sanitized = sanitizeViaLabels(normalized);
 
-    ensureValidOrThrow(normalized);
+    // Expandir M:N (usa 'via' válida o genera join name estable)
+    const finalDsl = expandManyToMany(sanitized);
+
+    // Validar (sobre el DSL saneado)
+    ensureValidOrThrow(sanitized);
 
     const created = await this.prisma.modelVersion.create({
       data: {

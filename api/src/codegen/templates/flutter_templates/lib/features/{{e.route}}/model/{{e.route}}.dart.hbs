@@ -1,0 +1,43 @@
+class {{e.name}} {
+  {{#each e.dartFields}}
+  final {{type}}{{nullable}} {{name}};
+  {{/each}}
+
+  {{e.name}}({
+    {{#each e.dartFields}}
+    this.{{name}},
+    {{/each}}
+  });
+
+  factory {{e.name}}.fromJson(Map<String, dynamic> j) => {{e.name}}(
+    {{#each e.dartFields}}
+    {{name}}: {{fromJson}},
+    {{/each}}
+  );
+
+  Map<String, dynamic> toJson() => {
+    {{#each e.dartFields}}
+    '{{name}}': {{toJson}},
+    {{/each}}
+  };
+
+  {{e.name}} copyWith({{{#each e.dartFields}}{{type}}{{nullable}} {{name}}, {{/each}}}) => {{e.name}}(
+    {{#each e.dartFields}}
+    {{name}}: {{name}} ?? this.{{name}},
+    {{/each}}
+  );
+
+  // Helpers para listas
+  String get titleText => {{titleExpr}};
+  String get subtitleText => {{subtitleExpr}};
+
+  // Inicial vacío
+  factory {{e.name}}.empty() => {{e.name}}(
+    {{#each e.dartFields}}
+    {{name}}: {{emptyExpr}},
+    {{/each}}
+  );
+
+  // ID helper
+  get id => {{idName}};
+}

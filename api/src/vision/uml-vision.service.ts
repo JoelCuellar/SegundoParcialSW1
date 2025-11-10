@@ -168,66 +168,66 @@ export class UmlVisionService {
       .trim();
   }
   private parseCardinality(raw?: string): string | undefined {
-  if (raw == null) return undefined;
+    if (raw == null) return undefined;
 
-  let t = String(raw).trim().toLowerCase();
-  if (!t || t === 'undefined' || t === 'null') return undefined;
+    let t = String(raw).trim().toLowerCase();
+    if (!t || t === 'undefined' || t === 'null') return undefined;
 
-  // quitar espacios y unificar símbolos
-  t = t.replace(/\s+/g, '');
-  t = t.replace(/\*/g, 'n'); // * -> n para normalizar primero
+    // quitar espacios y unificar símbolos
+    t = t.replace(/\s+/g, '');
+    t = t.replace(/\*/g, 'n'); // * -> n para normalizar primero
 
-  // valores simples
-  if (t === 'n') return 'N';
-  if (/^\d+$/.test(t)) return t;
+    // valores simples
+    if (t === 'n') return 'N';
+    if (/^\d+$/.test(t)) return t;
 
-  // rangos válidos
-  if (/^\d+\.\.\d+$/.test(t)) return t;
-  if (/^\d+\.\.n$/.test(t)) return t.replace(/n$/, 'N');
-  if (/^n\.\.\d+$/.test(t)) return 'N..' + t.split('..')[1];
+    // rangos válidos
+    if (/^\d+\.\.\d+$/.test(t)) return t;
+    if (/^\d+\.\.n$/.test(t)) return t.replace(/n$/, 'N');
+    if (/^n\.\.\d+$/.test(t)) return 'N..' + t.split('..')[1];
 
-  // alias comunes
-  if (t === '0..*' || t === '0..n') return '0..N';
-  if (t === '1..*' || t === '1..n') return '1..N';
+    // alias comunes
+    if (t === '0..*' || t === '0..n') return '0..N';
+    if (t === '1..*' || t === '1..n') return '1..N';
 
-  return undefined;
-}
-
-  private sanitizeCardinality(raw?: string): string | undefined {
-  if (raw == null) return undefined;
-
-  let t = String(raw).trim().toLowerCase();
-  if (!t || t === 'undefined' || t === 'null') return undefined;
-
-  // normalizaciones básicas
-  t = t.replace(/\s+/g, '');
-  t = t.replace(/\*/g, 'N').replace(/n/g, 'N');
-
-  // "1..1..N" → "1..N" ; "undefined..1..N" → "1..N"
-  if (t.includes('..')) {
-    const parts = t
-      .split('..')
-      .map(p => p.replace(/[^0-9N]/g, ''))
-      .filter(Boolean);
-    if (parts.length >= 2) {
-      t = `${parts[0]}..${parts[parts.length - 1]}`;
-    }
+    return undefined;
   }
 
-  // alias comunes
-  if (t === 'N') return 'N';
-  if (/^\d+$/.test(t)) return t;
-  if (/^\d+\.\.\d+$/.test(t)) return t;
-  if (/^\d+\.\.N$/.test(t)) return t;
-  if (/^N\.\.\d+$/.test(t)) return t;
-  if (/^0\.\.\*$/.test(t)) return '0..N';
-  if (/^1\.\.\*$/.test(t)) return '1..N';
-  if (/^0\.\.n$/i.test(t)) return '0..N';
-  if (/^1\.\.n$/i.test(t)) return '1..N';
+  private sanitizeCardinality(raw?: string): string | undefined {
+    if (raw == null) return undefined;
 
-  // fallback a tu parser existente
-  return this.parseCardinality(t);
-}
+    let t = String(raw).trim().toLowerCase();
+    if (!t || t === 'undefined' || t === 'null') return undefined;
+
+    // normalizaciones básicas
+    t = t.replace(/\s+/g, '');
+    t = t.replace(/\*/g, 'N').replace(/n/g, 'N');
+
+    // "1..1..N" → "1..N" ; "undefined..1..N" → "1..N"
+    if (t.includes('..')) {
+      const parts = t
+        .split('..')
+        .map((p) => p.replace(/[^0-9N]/g, ''))
+        .filter(Boolean);
+      if (parts.length >= 2) {
+        t = `${parts[0]}..${parts[parts.length - 1]}`;
+      }
+    }
+
+    // alias comunes
+    if (t === 'N') return 'N';
+    if (/^\d+$/.test(t)) return t;
+    if (/^\d+\.\.\d+$/.test(t)) return t;
+    if (/^\d+\.\.N$/.test(t)) return t;
+    if (/^N\.\.\d+$/.test(t)) return t;
+    if (/^0\.\.\*$/.test(t)) return '0..N';
+    if (/^1\.\.\*$/.test(t)) return '1..N';
+    if (/^0\.\.n$/i.test(t)) return '0..N';
+    if (/^1\.\.n$/i.test(t)) return '1..N';
+
+    // fallback a tu parser existente
+    return this.parseCardinality(t);
+  }
 
   private splitHeaderCollapsed(
     line: string,
@@ -383,24 +383,28 @@ export class UmlVisionService {
     return null;
   }
 
-  private async tryGeminiExtract(buffer: Buffer, mime: string = 'image/png'): Promise<DSL | null> {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
-  if (!apiKey) return null;
+  private async tryGeminiExtract(
+    buffer: Buffer,
+    mime: string = 'image/png',
+  ): Promise<DSL | null> {
+    const apiKey =
+      process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+    if (!apiKey) return null;
 
-  let GoogleGenerativeAI: any;
-  try {
-    ({ GoogleGenerativeAI } = await import('@google/generative-ai'));
-  } catch {
-    this.logger.warn('[Gemini] @google/generative-ai no instalado');
-    return null;
-  }
+    let GoogleGenerativeAI: any;
+    try {
+      ({ GoogleGenerativeAI } = await import('@google/generative-ai'));
+    } catch {
+      this.logger.warn('[Gemini] @google/generative-ai no instalado');
+      return null;
+    }
 
-  const client = new GoogleGenerativeAI(apiKey);
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  const model = client.getGenerativeModel({ model: modelName });
+    const client = new GoogleGenerativeAI(apiKey);
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+    const model = client.getGenerativeModel({ model: modelName });
 
-  // Prompt “duro” sin responseSchema (compatible v1/v1beta)
-  const prompt = `Eres experto en UML 2.x. Analiza la IMAGEN (diagrama de clases) y devuelve SOLO JSON válido:
+    // Prompt “duro” sin responseSchema (compatible v1/v1beta)
+    const prompt = `Eres experto en UML 2.x. Analiza la IMAGEN (diagrama de clases) y devuelve SOLO JSON válido:
 {
   "entities":[
     {"name":"", "stereotype":null, "isInterface":false, "isAbstract":false,
@@ -418,102 +422,160 @@ Reglas:
 - "fromCard"/"toCard": cardinalidades ("1","0..1","1..*","*","0..N","1..N") si se ven; si no, null.
 - No agregues texto fuera del JSON.`;
 
-  // Imagen -> base64
-  const base64 = buffer.toString('base64');
+    // Imagen -> base64
+    const base64 = buffer.toString('base64');
 
-  // Utilidad para parsear JSON tolerante
-  const parseJsonSafe = (s: string) => {
-    try { return JSON.parse(s); } catch {
-      const start = s.indexOf('{'); const end = s.lastIndexOf('}');
-      if (start >= 0 && end > start) {
-        return JSON.parse(s.slice(start, end + 1));
+    // Utilidad para parsear JSON tolerante
+    const parseJsonSafe = (s: string) => {
+      try {
+        return JSON.parse(s);
+      } catch {
+        const start = s.indexOf('{');
+        const end = s.lastIndexOf('}');
+        if (start >= 0 && end > start) {
+          return JSON.parse(s.slice(start, end + 1));
+        }
+        throw new Error('Invalid JSON from model');
       }
-      throw new Error('Invalid JSON from model');
-    }
-  };
+    };
 
-  try {
-    const result = await model.generateContent({
-      contents: [{
-        role: 'user',
-        parts: [
-          { text: prompt },
-          { inlineData: { data: base64, mimeType: mime } },
+    try {
+      const result = await model.generateContent({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: prompt },
+              { inlineData: { data: base64, mimeType: mime } },
+            ],
+          },
         ],
-      }],
-      generationConfig: {
-        responseMimeType: 'application/json', // sin responseSchema
-        temperature: 0.2,
-        // maxOutputTokens: 8192, // opcional
-      },
-    });
+        generationConfig: {
+          responseMimeType: 'application/json', // sin responseSchema
+          temperature: 0.2,
+          // maxOutputTokens: 8192, // opcional
+        },
+      });
 
-    const text = result?.response?.text?.() ?? '';
-    const json = parseJsonSafe(text);
+      const text = result?.response?.text?.() ?? '';
+      const json = parseJsonSafe(text);
 
-    // Sanitizar a tu DSL
-    const entities: Entity[] = Array.isArray(json.entities) ? json.entities
-      .map((e: any) => ({
-        name: String(e?.name || '').trim(),
-        stereotype: e?.stereotype ?? undefined,
-        isInterface: !!e?.isInterface,
-        isAbstract: !!e?.isAbstract,
-        attrs: Array.isArray(e?.attrs) ? e.attrs.map((a: any) => ({
-          name: String(a?.name || '').trim(),
-          type: String(a?.type || 'any').trim(),
-          pk: !!a?.pk,
-          unique: !!a?.unique,
-          nullable: !!a?.nullable,
-        })) : [],
-      }))
-      .filter((e: Entity) => !!e.name)
-      : [];
+      // Sanitizar a tu DSL
+      const entities: Entity[] = Array.isArray(json.entities)
+        ? json.entities
+            .map((e: any) => ({
+              name: String(e?.name || '').trim(),
+              stereotype: e?.stereotype ?? undefined,
+              isInterface: !!e?.isInterface,
+              isAbstract: !!e?.isAbstract,
+              attrs: Array.isArray(e?.attrs)
+                ? e.attrs.map((a: any) => ({
+                    name: String(a?.name || '').trim(),
+                    type: String(a?.type || 'any').trim(),
+                    pk: !!a?.pk,
+                    unique: !!a?.unique,
+                    nullable: !!a?.nullable,
+                  }))
+                : [],
+            }))
+            .filter((e: Entity) => !!e.name)
+        : [];
 
-    const normCard = (v: any): string | undefined => {
-      const s = (v ?? '').toString().trim();
-      if (!s) return undefined;
-      if (s === '*' || s.toLowerCase() === 'n') return 'N';
-      if (/^\d+$/.test(s)) return s;
-      if (/^\d+\.\.\d+$/.test(s)) return s;
-      if (/^\d+\.\.[*nN]$/.test(s)) return s.replace(/[*nN]$/, 'N');
-      if (/^[*nN]\.\.\d+$/.test(s)) return 'N..' + s.split('..')[1];
-      if (/^(0\.\.1|0\.\.\*|1\.\.\*|0\.\.n|1\.\.n)$/i.test(s)) return s.replace(/n$/i, 'N');
-      return undefined;
-    };
+      const normCard = (v: any): string | undefined => {
+        const s = (v ?? '').toString().trim();
+        if (!s) return undefined;
 
-    const kindMap = (k: string): Relation['kind'] | null => {
-      const m = (k || '').toLowerCase().trim();
-      if (['association','assoc','link','relation','--'].includes(m)) return 'association';
-      if (['aggregation','agregacion','agregación','o--','diamond'].includes(m)) return 'aggregation';
-      if (['composition','composicion','composición','*--','filled-diamond'].includes(m)) return 'composition';
-      if (['generalization','generalizacion','generalización','herencia','inheritance','<|--'].includes(m)) return 'generalization';
-      if (['realization','realizacion','realización','implements','<|..'].includes(m)) return 'realization';
-      if (['dependency','dependencia','..>','dashed'].includes(m)) return 'dependency';
+        // ↯ NUEVO: normalizar "0.1", "1.0", "0-1", "1-0", "0/1", "1/0", "0,1", "1,0"
+        const m01 = s.toLowerCase().match(/^([01])\s*[,.\-/:]\s*([01])$/);
+        if (m01) {
+          const a = Number(m01[1]);
+          const b = Number(m01[2]);
+          if (a === 0 && b === 1) return '0..1';
+          if (a === 1 && b === 0) return '1';
+        }
+
+        if (s === '*' || s.toLowerCase() === 'n') return 'N';
+        if (/^\d+$/.test(s)) return s;
+        if (/^\d+\.\.\d+$/.test(s)) return s;
+        if (/^\d+\.\.[*nN]$/.test(s)) return s.replace(/[*nN]$/, 'N');
+        return undefined;
+      };
+
+      const kindMap = (k: string): Relation['kind'] | null => {
+        const m = (k || '').toLowerCase().trim();
+        if (['association', 'assoc', 'link', 'relation', '--'].includes(m))
+          return 'association';
+        if (
+          [
+            'aggregation',
+            'agregacion',
+            'agregación',
+            'o--',
+            'diamond',
+          ].includes(m)
+        )
+          return 'aggregation';
+        if (
+          [
+            'composition',
+            'composicion',
+            'composición',
+            '*--',
+            'filled-diamond',
+          ].includes(m)
+        )
+          return 'composition';
+        if (
+          [
+            'generalization',
+            'generalizacion',
+            'generalización',
+            'herencia',
+            'inheritance',
+            '<|--',
+          ].includes(m)
+        )
+          return 'generalization';
+        if (
+          [
+            'realization',
+            'realizacion',
+            'realización',
+            'implements',
+            '<|..',
+          ].includes(m)
+        )
+          return 'realization';
+        if (['dependency', 'dependencia', '..>', 'dashed'].includes(m))
+          return 'dependency';
+        return null;
+      };
+
+      const relations: Relation[] = Array.isArray(json.relations)
+        ? (json.relations
+            .map((r: any) => {
+              const kind = kindMap(String(r?.kind || ''));
+              if (!kind) return null;
+              return {
+                from: String(r?.from || '').trim(),
+                to: String(r?.to || '').trim(),
+                kind,
+                fromCard: normCard(r?.fromCard),
+                toCard: normCard(r?.toCard),
+                via: r?.via ? String(r.via).trim() : undefined,
+              } as Relation;
+            })
+            .filter(Boolean) as Relation[])
+        : [];
+
+      return { entities, relations, constraints: [] };
+    } catch (err) {
+      this.logger.warn(
+        `[Gemini] fallo al generar/parsear JSON: ${String(err)}`,
+      );
       return null;
-    };
-
-    const relations: Relation[] = Array.isArray(json.relations) ? json.relations
-      .map((r: any) => {
-        const kind = kindMap(String(r?.kind || ''));
-        if (!kind) return null;
-        return {
-          from: String(r?.from || '').trim(),
-          to: String(r?.to || '').trim(),
-          kind,
-          fromCard: normCard(r?.fromCard),
-          toCard: normCard(r?.toCard),
-          via: r?.via ? String(r.via).trim() : undefined,
-        } as Relation;
-      })
-      .filter(Boolean) as Relation[] : [];
-
-    return { entities, relations, constraints: [] };
-  } catch (err) {
-    this.logger.warn(`[Gemini] fallo al generar/parsear JSON: ${String(err)}`);
-    return null;
+    }
   }
-}
-
 
   // ---------- OCR multipass (varias imágenes y PSM) ----------
   /** CLAHE si está disponible en la versión de sharp; si no, usa un pseudo-contraste local */
@@ -613,9 +675,7 @@ Reglas:
   }
 
   /** Parsea el TSV de Tesseract (level=5 → word) a cajas de palabra */
-  private wordsFromTsv(
-    tsv?: string,
-  ): Array<{
+  private wordsFromTsv(tsv?: string): Array<{
     text: string;
     x0: number;
     y0: number;
@@ -652,9 +712,7 @@ Reglas:
   }
 
   /** Normaliza items de 'words' si existen en algunos builds */
-  private normalizeWordItems(
-    words: any[],
-  ): Array<{
+  private normalizeWordItems(words: any[]): Array<{
     text: string;
     x0: number;
     y0: number;
@@ -883,116 +941,133 @@ Reglas:
 
   // ---------- Autofix: PKs, ruido, dedupe, relaciones válidas ----------
   private finalizeDsl(dsl: DSL): DSL {
-  // --- limpiar/merge entidades ---
-  const cleaned: Entity[] = [];
-  const seen = new Map<string, Entity>();
+    // --- limpiar/merge entidades ---
+    const cleaned: Entity[] = [];
+    const seen = new Map<string, Entity>();
 
-  for (const rawE of dsl.entities || []) {
-    const e: Entity = {
-      ...rawE,
-      name: (rawE.name || '').replace(/[|]+/g, '').trim(),
-      attrs: [...(rawE.attrs || [])],
+    for (const rawE of dsl.entities || []) {
+      const e: Entity = {
+        ...rawE,
+        name: (rawE.name || '').replace(/[|]+/g, '').trim(),
+        attrs: [...(rawE.attrs || [])],
+      };
+
+      // descartar ruido
+      if (!e.name || (e.name.length <= 2 && (e.attrs?.length || 0) === 0)) {
+        this.logger.debug(`Descarto ruido de entidad "${rawE.name}"`);
+        continue;
+      }
+
+      // dedupe attrs
+      const amap = new Map<string, EntityAttr>();
+      for (const a of e.attrs || []) {
+        const k = stripDiacritics(a.name);
+        if (!amap.has(k)) amap.set(k, a);
+      }
+      e.attrs = Array.from(amap.values());
+
+      // asegurar PK
+      if (!(e.attrs || []).some((a) => a.pk)) {
+        const cls = stripDiacritics(e.name).replace(/\s+/g, '');
+        const candidate =
+          e.attrs.find((a) => {
+            const an = stripDiacritics(a.name);
+            return (
+              an === 'id' ||
+              an === '_id' ||
+              an === `${cls}id` ||
+              an.endsWith('id')
+            );
+          }) || null;
+
+        if (candidate) candidate.pk = true;
+        else
+          e.attrs.unshift({
+            name: 'id',
+            type: 'UUID',
+            pk: true,
+            unique: true,
+            nullable: false,
+          });
+      }
+
+      const key = stripDiacritics(e.name);
+      const ex = seen.get(key);
+      if (!ex) {
+        seen.set(key, e);
+        cleaned.push(e);
+      } else {
+        for (const a of e.attrs) {
+          if (!ex.attrs.some((x) => keyEq(x.name, a.name))) ex.attrs.push(a);
+        }
+      }
+    }
+
+    // --- normalizar relaciones y nombres según entidades realmente existentes ---
+    const nameMap = new Map<string, string>();
+    for (const e of cleaned) nameMap.set(stripDiacritics(e.name), e.name);
+
+    const rels = (dsl.relations || [])
+      .map((r) => {
+        const from = nameMap.get(stripDiacritics(r.from));
+        const to = nameMap.get(stripDiacritics(r.to));
+        if (!from || !to) return null;
+
+        // Sanear cardinalidades (arregla "1..1..N", "undefined..1..N", etc.)
+        let fromCard = this.sanitizeCardinality(r.fromCard);
+        let toCard = this.sanitizeCardinality(r.toCard);
+
+        // Defaults para N-N con join ("via")
+        if (r.via) {
+          if (!fromCard) fromCard = '1..N';
+          if (!toCard) toCard = '1..N';
+        }
+
+        return { ...r, from, to, fromCard, toCard };
+      })
+      .filter(Boolean) as Relation[];
+
+    const byName = new Map(cleaned.map((e) => [stripDiacritics(e.name), e]));
+    const fkName = (n: string) => `${stripDiacritics(n).replace(/\s+/g, '')}Id`;
+
+    for (const r of rels) {
+      if (!r.via) continue;
+
+      const viaE = byName.get(stripDiacritics(r.via));
+      const A = byName.get(stripDiacritics(r.from));
+      const B = byName.get(stripDiacritics(r.to));
+      if (!viaE || !A || !B) continue;
+
+      viaE.attrs ||= [];
+
+      const aFK = fkName(A.name);
+      const bFK = fkName(B.name);
+
+      const hasA = viaE.attrs.some(
+        (a) =>
+          keyEq(a.name, aFK) ||
+          keyEq(a.name, `${A.name}Id`) ||
+          keyEq(a.name, `${stripDiacritics(A.name)}_id`) ||
+          keyEq(a.name, `${stripDiacritics(A.name)}Id`),
+      );
+      const hasB = viaE.attrs.some(
+        (a) =>
+          keyEq(a.name, bFK) ||
+          keyEq(a.name, `${B.name}Id`) ||
+          keyEq(a.name, `${stripDiacritics(B.name)}_id`) ||
+          keyEq(a.name, `${stripDiacritics(B.name)}Id`),
+      );
+
+      if (!hasA) viaE.attrs.push({ name: aFK, type: 'any' });
+      if (!hasB) viaE.attrs.push({ name: bFK, type: 'any' });
+    }
+
+    return {
+      entities: cleaned,
+      relations: rels,
+      constraints: dsl.constraints || [],
     };
-
-    // descartar ruido
-    if (!e.name || (e.name.length <= 2 && (e.attrs?.length || 0) === 0)) {
-      this.logger.debug(`Descarto ruido de entidad "${rawE.name}"`);
-      continue;
-    }
-
-    // dedupe attrs
-    const amap = new Map<string, EntityAttr>();
-    for (const a of e.attrs || []) {
-      const k = stripDiacritics(a.name);
-      if (!amap.has(k)) amap.set(k, a);
-    }
-    e.attrs = Array.from(amap.values());
-
-    // asegurar PK
-    if (!(e.attrs || []).some((a) => a.pk)) {
-      const cls = stripDiacritics(e.name).replace(/\s+/g, '');
-      const candidate =
-        e.attrs.find((a) => {
-          const an = stripDiacritics(a.name);
-          return an === 'id' || an === '_id' || an === `${cls}id` || an.endsWith('id');
-        }) || null;
-
-      if (candidate) candidate.pk = true;
-      else e.attrs.unshift({ name: 'id', type: 'UUID', pk: true, unique: true, nullable: false });
-    }
-
-    const key = stripDiacritics(e.name);
-    const ex = seen.get(key);
-    if (!ex) {
-      seen.set(key, e);
-      cleaned.push(e);
-    } else {
-      for (const a of e.attrs) {
-        if (!ex.attrs.some((x) => keyEq(x.name, a.name))) ex.attrs.push(a);
-      }
-    }
   }
-
-  // --- normalizar relaciones y nombres según entidades realmente existentes ---
-  const nameMap = new Map<string, string>();
-  for (const e of cleaned) nameMap.set(stripDiacritics(e.name), e.name);
-
-  const rels = (dsl.relations || [])
-    .map((r) => {
-      const from = nameMap.get(stripDiacritics(r.from));
-      const to   = nameMap.get(stripDiacritics(r.to));
-      if (!from || !to) return null;
-
-      // Sanear cardinalidades (arregla "1..1..N", "undefined..1..N", etc.)
-      let fromCard = this.sanitizeCardinality(r.fromCard);
-      let toCard   = this.sanitizeCardinality(r.toCard);
-
-      // Defaults para N-N con join ("via")
-      if (r.via) {
-        if (!fromCard) fromCard = '1..N';
-        if (!toCard)   toCard   = '1..N';
-      }
-
-      return { ...r, from, to, fromCard, toCard };
-    })
-    .filter(Boolean) as Relation[];
-
-  const byName = new Map(cleaned.map(e => [stripDiacritics(e.name), e]));
-  const fkName = (n: string) => `${stripDiacritics(n).replace(/\s+/g, '')}Id`;
-
-  for (const r of rels) {
-    if (!r.via) continue;
-
-    const viaE = byName.get(stripDiacritics(r.via));
-    const A = byName.get(stripDiacritics(r.from));
-    const B = byName.get(stripDiacritics(r.to));
-    if (!viaE || !A || !B) continue;
-
-    viaE.attrs ||= [];
-
-    const aFK = fkName(A.name);
-    const bFK = fkName(B.name);
-
-    const hasA = viaE.attrs.some(a =>
-      keyEq(a.name, aFK) ||
-      keyEq(a.name, `${A.name}Id`) ||
-      keyEq(a.name, `${stripDiacritics(A.name)}_id`) ||
-      keyEq(a.name, `${stripDiacritics(A.name)}Id`)
-    );
-    const hasB = viaE.attrs.some(a =>
-      keyEq(a.name, bFK) ||
-      keyEq(a.name, `${B.name}Id`) ||
-      keyEq(a.name, `${stripDiacritics(B.name)}_id`) ||
-      keyEq(a.name, `${stripDiacritics(B.name)}Id`)
-    );
-
-    if (!hasA) viaE.attrs.push({ name: aFK, type: 'any' });
-    if (!hasB) viaE.attrs.push({ name: bFK, type: 'any' });
-  }
-
-  return { entities: cleaned, relations: rels, constraints: dsl.constraints || [] };
-}
-
 
   // ---------- Orquestador ----------
   async parseImage(
