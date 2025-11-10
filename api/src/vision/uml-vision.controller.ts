@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Param,
@@ -7,7 +8,6 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
@@ -26,28 +26,46 @@ export class UmlVisionController {
     private readonly models: ModelsService,
   ) {}
 
+  // ---------- PREVISUALIZACIÓN (no guarda versión, sí guarda la imagen como Artifact) ----------
   @Post('parse-image')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        if (!/^image\/(png|jpe?g|bmp|gif|webp)$/i.test(file.mimetype)) {
+          return cb(
+            new BadRequestException('Formato de imagen no soportado'),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
   async parseImage(
     @Param('projectId') projectId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (!file) throw new BadRequestException('Falta archivo');
-    const res = await this.svc.parseImage(file.buffer);
+
+    const res = await this.svc.parseImage(file.buffer); // { dsl, ocrText, stats }
+
+    const storageKey = await this.saveLocal(
+      `imports/${projectId}/${Date.now()}_${file.originalname}`,
+      file.buffer,
+    );
 
     const artifact = await this.prisma.artifact.create({
       data: {
         projectId,
-        type: 'OTHER', // si quieres, extiende el enum con UML_IMAGE
+        type: 'OTHER', // si amplías el enum: UML_IMAGE
         storageBucket: 'local',
-        storageKey: await this.saveLocal(
-          `imports/${projectId}/${Date.now()}_${file.originalname}`,
-          file.buffer,
-        ),
+        storageKey,
         metadata: {
           kind: 'UML_IMAGE_IMPORT',
           filename: file.originalname,
-          stats: res.stats,
+          stats: res.stats, // JSON (no string)
+          ocrText: res.ocrText?.slice(0, 8000), // auditoría
         },
       },
       select: { id: true, storageKey: true },
@@ -56,8 +74,22 @@ export class UmlVisionController {
     return { artifactId: artifact.id, ...res };
   }
 
+  // ---------- IMPORTACIÓN (fusiona/reemplaza DSL y crea nueva versión; guarda imagen como Artifact asociado) ----------
   @Post('import-image')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        if (!/^image\/(png|jpe?g|bmp|gif|webp)$/i.test(file.mimetype)) {
+          return cb(
+            new BadRequestException('Formato de imagen no soportado'),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
   async importImage(
     @Param('projectId') projectId: string,
     @UploadedFile() file: Express.Multer.File,
@@ -66,70 +98,77 @@ export class UmlVisionController {
     @Req() req: Request,
   ) {
     if (!file) throw new BadRequestException('Falta archivo');
+
     const userId =
       ((req as any).user?.userId as string) ||
       ((req as any).user?.sub as string);
 
-    const { dsl, stats } = await this.svc.parseImage(file.buffer);
+    // 1) OCR -> DSL
+    const { dsl, ocrText, stats } = await this.svc.parseImage(file.buffer);
 
-    // Resolver branch usando SOLO métodos públicos
+    // 2) Resolver rama actual
     const current = await this.models.getCurrent(
       projectId,
       userId,
       body.branchId,
     );
-
     const branchId =
       (current as any)?.branchId ??
       (current as any)?.branch?.id ??
       body.branchId;
 
     if (!branchId) {
-      throw new BadRequestException(
-        'No se pudo resolver la rama (branchId).',
-      );
+      throw new BadRequestException('No se pudo resolver la rama (branchId).');
     }
 
-    // Merge del DSL (o reemplazo)
+    // 3) Merge/Reemplazo del DSL
     let merged: DSL = dsl;
     if (body.merge !== 'replace' && (current as any)?.content) {
       merged = this.mergeDsl((current as any).content as DSL, dsl);
     }
 
-    // Guardar nueva versión
+    // 4) Guardar versión
     const saved = await this.models.saveNewVersion(projectId, userId, {
       branchId,
-      message: body.message || 'Importación desde imagen (UML OCR)',
+      message: body.message || 'import: imagen UML',
       content: merged,
     } as any);
 
-    // Guardar la imagen como artifact asociado a esa versión
+    const versionId = (saved as any).versionId ?? (saved as any).id;
+
+    // 5) Guardar imagen como Artifact asociado a la versión
+    const storageKey = await this.saveLocal(
+      `imports/${projectId}/${versionId}_${file.originalname}`,
+      file.buffer,
+    );
+
     await this.prisma.artifact.create({
       data: {
         projectId,
-        modelVersionId: saved.versionId,
+        modelVersionId: versionId,
         type: 'OTHER',
         storageBucket: 'local',
-        storageKey: await this.saveLocal(
-          `imports/${projectId}/${saved.versionId}_${file.originalname}`,
-          file.buffer,
-        ),
+        storageKey,
         metadata: {
           kind: 'UML_IMAGE_IMPORT',
           filename: file.originalname,
-          stats,
+          stats, // JSON (no string)
+          ocrText: ocrText?.slice(0, 8000),
         },
       },
     });
 
     return {
-      versionId: saved.versionId,
+      versionId,
       branchId,
       stats,
       insertedEntities: dsl.entities.length,
+      mergedEntities: merged.entities.length,
+      mergedRelations: merged.relations.length,
     };
   }
 
+  // ---------- util: persistir archivo localmente ----------
   private async saveLocal(rel: string, buf: Buffer): Promise<string> {
     const fs = await import('node:fs/promises');
     const path = await import('node:path');
@@ -139,7 +178,7 @@ export class UmlVisionController {
     return rel;
   }
 
-  // merge ingenuo por nombre de clase y atributo
+  // ---------- merge ingenuo por nombre + dedup de relaciones considerando cardinalidades y via ----------
   private mergeDsl(base: DSL, inc: DSL): DSL {
     const entities = [...(base.entities || [])];
 
@@ -151,6 +190,9 @@ export class UmlVisionController {
         entities.push(e);
       } else {
         target.stereotype ||= e.stereotype;
+        (target as any).isInterface ||= (e as any).isInterface;
+        (target as any).isAbstract ||= (e as any).isAbstract;
+
         target.attrs ||= [];
         for (const a of e.attrs || []) {
           if (
@@ -166,13 +208,16 @@ export class UmlVisionController {
 
     const rels = [...(base.relations || [])];
     for (const r of inc.relations || []) {
-      if (
-        !rels.some(
-          (x) => x.from === r.from && x.to === r.to && x.kind === r.kind,
-        )
-      ) {
-        rels.push(r);
-      }
+      const exists = rels.some(
+        (x) =>
+          x.from === r.from &&
+          x.to === r.to &&
+          x.kind === r.kind &&
+          (x.fromCard ?? '') === (r.fromCard ?? '') &&
+          (x.toCard ?? '') === (r.toCard ?? '') &&
+          (x.via ?? '') === (r.via ?? ''),
+      );
+      if (!exists) rels.push(r);
     }
 
     return { entities, relations: rels, constraints: base.constraints || [] };

@@ -89,11 +89,35 @@ const DECIMAL_RE = /^decimal\(\d+,\d+\)$/i;
 function normCard(c?: string): '1' | '0..1' | 'N' | undefined {
   if (!c) return undefined;
   const s = String(c).trim().toLowerCase();
+
+  // básicos
   if (s === '1' || s === '1..1') return '1';
   if (s === '0..1' || s === '01' || s === '?') return '0..1';
-  if (s === 'n' || s === '*' || s === '1..*' || s === '0..*' || s === 'many')
-    return 'N';
-  if (s === '1:n' || s === 'n:1' || s === 'n:n') return 'N'; // legacy
+  if (s === 'n' || s === '*' || s === 'many') return 'N';
+
+  // números sueltos (2,3,…) -> muchos
+  if (/^\d+$/.test(s)) return Number(s) <= 1 ? '1' : 'N';
+
+  // rangos colapsados a la tríada
+  // 0..N / 1..N / 1..* / 0..* / 1..n / 0..n  -> N
+  if (/^(0|1)\.\.(\*|n)$/i.test(s)) return 'N';
+  if (/^(1|0)\.\.\*$/i.test(s)) return 'N';
+  if (/^(1|0)\.\.n$/i.test(s)) return 'N';
+
+  // N..0 / N..1 / *..0 / *..1 / n..0 / n..1 -> N
+  if (/^(\*|n)\.\.(0|1)$/i.test(s)) return 'N';
+
+  // a..b con dígitos -> 0..1 => 0..1; si el tope >1 => N; si tope <=1 => 1
+  const m = s.match(/^(\d+)\.\.(\d+)$/);
+  if (m) {
+    const a = Number(m[1]), b = Number(m[2]);
+    if (a === 0 && b === 1) return '0..1';
+    return b > 1 ? 'N' : '1';
+  }
+
+  // notaciones con dos puntos
+  if (s === '1:n' || s === 'n:1' || s === 'n:n') return 'N';
+
   return undefined;
 }
 function isCardAllowed(c?: string) {
@@ -636,7 +660,7 @@ function resolveJoinName(
   r: Relation,
   ents: Entity[],
   toAddEnts: Entity[],
-  allNames: Set<string>
+  allNames: Set<string>,
 ): string {
   // 1) Si el usuario especificó via, úsala tal cual
   if (r.via) return r.via;
@@ -646,7 +670,7 @@ function resolveJoinName(
 
   // 3) Si ya existe (creada manualmente o en este mismo ciclo), REUTILIZA
   const existsBase =
-    ents.some(e => e.name === base) || toAddEnts.some(e => e.name === base);
+    ents.some((e) => e.name === base) || toAddEnts.some((e) => e.name === base);
   if (existsBase) return base;
 
   // 4) Si el base está libre, úsalo
@@ -663,18 +687,20 @@ function expandManyToMany(dsl: DSL): DSL {
   const toAddEnts: Entity[] = [];
 
   // Conjunto de nombres existentes (incluye lo que se vaya agregando)
-  const allNames = new Set(ents.map(e => e.name));
+  const allNames = new Set(ents.map((e) => e.name));
 
   for (const r of rels) {
     const kind = normalizeKind(r.kind);
     const isAssocish =
-      kind === 'association' || kind === 'aggregation' || kind === 'composition';
+      kind === 'association' ||
+      kind === 'aggregation' ||
+      kind === 'composition';
     if (!isAssocish) continue;
 
     if (!(isMany(r.fromCard) && isMany(r.toCard))) continue; // solo M:N
 
-    const A = ents.find(e => e.name === r.from);
-    const B = ents.find(e => e.name === r.to);
+    const A = ents.find((e) => e.name === r.from);
+    const B = ents.find((e) => e.name === r.to);
     if (!A || !B) continue;
 
     // *** FIX: resolver nombre reusando base si existe ***
@@ -682,8 +708,8 @@ function expandManyToMany(dsl: DSL): DSL {
 
     // Buscar si ya la tenemos (persistida o en cola)
     let join =
-      ents.find(e => e.name === joinName) ||
-      toAddEnts.find(e => e.name === joinName);
+      ents.find((e) => e.name === joinName) ||
+      toAddEnts.find((e) => e.name === joinName);
 
     // Crear solo si no existe
     if (!join) {
