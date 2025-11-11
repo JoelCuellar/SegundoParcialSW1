@@ -12,7 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ArtifactsComponent {
   projectId = signal<string>('');
-  types = signal<string[]>(['SPRING_BOOT_PROJECT', 'POSTMAN_COLLECTION']);
+  types = signal<string[]>(['SPRING_BOOT_PROJECT', 'POSTMAN_COLLECTION', 'FLUTTER_APP']);
   packageBase = signal('com.acme.demo');
   dbEngine = signal<'POSTGRESQL' | 'MYSQL' | 'MARIADB' | 'SQLSERVER'>('POSTGRESQL');
   migrationTool = signal<'FLYWAY' | 'LIQUIBASE'>('FLYWAY');

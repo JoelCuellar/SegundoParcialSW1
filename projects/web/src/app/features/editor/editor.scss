@@ -1,232 +1,391 @@
+/* ==== LAYOUT GENERAL DEL EDITOR ==== */
+
 .editor-container {
-  min-height: 100vh;
-  background-color: var(--color-background);
+  padding: 16px 20px 20px;
+  background-color: #f9fafb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .editor-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  height: calc(100vh - 64px); // Account for header height
-  gap: 0;
+  grid-template-columns: minmax(0, 2.1fr) minmax(320px, 0.9fr);
+  gap: 16px;
+  align-items: stretch;
 }
+
+/* ==== SECCIÓN DIAGRAMA ==== */
 
 .diagram-section {
   display: flex;
   flex-direction: column;
-  background-color: var(--color-surface);
-  border-right: 1px solid var(--color-border);
+  gap: 8px;
 }
+
+/* Toolbar principal (superior) */
 
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-lg);
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  gap: var(--spacing-lg);
-  
-  .toolbar-group {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-  }
-  
-  .status-text {
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    margin-left: var(--spacing-md);
-  }
+  gap: 12px;
+  padding: 10px 12px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
 }
+
+.toolbar-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Segundo grupo (Importar imagen UML) debajo de la toolbar, pero cohesivo */
+
+.diagram-section > .toolbar-group {
+  margin-top: -2px;
+  padding: 6px 10px 4px;
+  background-color: transparent;
+  gap: 8px;
+}
+
+/* Texto de estado */
+
+.status-text {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* Canvas del diagrama */
 
 .diagram-canvas {
+  margin-top: 4px;
   flex: 1;
-  background-color: var(--color-surface);
-  border-radius: 0;
-  border: none;
-  
-  // GoJS diagram styling will be handled by the GoJS configuration
+  min-height: 520px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
 }
+
+/* Asegura que el canvas pueda expandirse correctamente si el contenedor padre lo permite */
+.editor-layout,
+.diagram-section,
+.diagram-canvas {
+  max-width: 100%;
+}
+
+/* ==== SECCIÓN PROPIEDADES Y RELACIONES ==== */
 
 .properties-section {
-  background-color: var(--color-surface-subtle);
-  overflow-y: auto;
-  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.properties-panel {
-  height: fit-content;
-  
-  h3 {
-    margin: 0;
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    color: var(--color-text);
-  }
-  
-  h4 {
-    margin: 0 0 var(--spacing-md) 0;
-    font-size: var(--font-size-base);
-    font-weight: 600;
-    color: var(--color-text);
-  }
+/* Card base (Propiedades / Relaciones) */
+
+app-card {
+  display: block;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 12px 12px 10px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.04);
 }
+
+.properties-panel h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Estado sin selección */
+
+.empty-selection {
+  text-align: left;
+  padding: 4px 0 4px;
+}
+
+.empty-selection h4 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.empty-selection .text-muted {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* ==== FORMULARIOS EN PANEL DE PROPIEDADES ==== */
+
+app-form-field {
+  display: block;
+  margin-bottom: 8px;
+}
+
+app-form-field input,
+app-form-field select {
+  width: 100%;
+  padding: 7px 9px;
+  font-size: 12px;
+  border-radius: 7px;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #111827;
+  transition: all 0.18s ease-in-out;
+}
+
+app-form-field input::placeholder {
+  color: #9ca3af;
+}
+
+app-form-field input:focus,
+app-form-field select:focus {
+  outline: none;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.12);
+}
+
+/* Checkboxes: interfaz / abstracta / flags atributo */
+
+.class-kind {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #4b5563;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 12px;
+  height: 12px;
+  accent-color: #e11d48;
+}
+
+/* ==== ATRIBUTOS ==== */
 
 .attributes-section {
-  margin-top: var(--spacing-xl);
-  
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--spacing-lg);
-  }
+  margin-top: 4px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.section-header h4 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #111827;
 }
 
 .attributes-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 
 .attribute-row {
-  padding: var(--spacing-md);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
-  
-  .attribute-fields {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
-  }
-  
-  .attribute-options {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-md);
-    
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
-      font-size: var(--font-size-sm);
-      cursor: pointer;
-      
-      input[type="checkbox"] {
-        margin: 0;
-        width: auto;
-        height: auto;
-      }
-      
-      span {
-        color: var(--color-text);
-        font-weight: 500;
-      }
-    }
-  }
+  padding: 6px 6px 4px;
+  border-radius: 8px;
+  border: 1px solid #f3f4f6;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
+.attribute-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.attribute-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* ==== BOTONES ==== */
+
+.btn-primary,
+.btn-secondary,
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.18s ease-in-out;
+}
+
+/* Principal: rojo */
+.btn-primary {
+  padding: 7px 12px;
+  font-size: 12px;
+  background-color: #e11d48;
+  color: #ffffff;
+  border: 1px solid transparent;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #be123c;
+  box-shadow: 0 4px 10px rgba(190, 18, 60, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  background-color: #9f1239;
+  box-shadow: 0 2px 6px rgba(148, 27, 65, 0.25);
+  transform: translateY(0);
+}
+
+/* Secundario (para Guardar manual, etc.) */
+.btn-secondary {
+  padding: 7px 12px;
+  font-size: 12px;
+  background-color: #111827;
+  color: #ffffff;
+  border: 1px solid #111827;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #111827;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.28);
+}
+
+/* Outline neutro con acento rojo al hover */
+.btn-outline {
+  padding: 7px 10px;
+  font-size: 11px;
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-outline:hover:not(:disabled) {
+  border-color: #e11d48;
+  color: #e11d48;
+  box-shadow: 0 3px 8px rgba(225, 29, 72, 0.18);
+}
+
+.btn-sm {
+  padding: 4px 9px;
+  font-size: 10px;
+}
+
+.btn-xs {
+  padding: 2px 7px;
+  font-size: 9px;
+}
+
+/* Estados disabled */
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Texto utilitario */
+
+.text-muted {
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.text-error {
+  color: #e11d48;
+}
+
+/* ==== FORM ACTIONS ==== */
+
 .form-actions {
-  margin-top: var(--spacing-xl);
+  margin-top: 8px;
 }
 
 .full-width {
   width: 100%;
 }
 
+/* ==== HINT BOX (mensajes aclaratorios) ==== */
+
 .hint-box {
-  margin-top: var(--spacing-lg);
-  padding: var(--spacing-md);
-  background-color: var(--color-accent);
-  border-radius: var(--radius-md);
-  
-  p {
-    margin: 0;
-    font-size: var(--font-size-sm);
-    line-height: 1.4;
-  }
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
 }
 
-.empty-selection {
-  text-align: center;
-  padding: var(--spacing-2xl) var(--spacing-lg);
-  
-  h4 {
-    color: var(--color-text);
-    margin-bottom: var(--spacing-md);
-  }
-  
-  p {
-    margin: 0;
-    line-height: 1.5;
-  }
+.hint-box p {
+  margin: 0;
+  font-size: 10px;
+  color: #6b7280;
 }
 
-// Button size variants
-.btn-sm {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  font-size: var(--font-size-sm);
+.hint-box strong {
+  color: #111827;
 }
 
-.btn-xs {
-  padding: calc(var(--spacing-xs) / 2) var(--spacing-xs);
-  font-size: var(--font-size-xs);
+/* ==== GRID UTIL RELACIONES ==== */
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
 }
 
-.text-error {
-  color: var(--color-error) !important;
-  
-  &:hover {
-    color: var(--color-error) !important;
-    opacity: 0.8;
-  }
-}
+/* ==== RESPONSIVE ==== */
 
-// Responsive design
-@media (max-width: 1024px) {
+@media (max-width: 992px) {
   .editor-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
+    grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
   }
-  
-  .properties-section {
-    max-height: 40vh;
-    border-top: 1px solid var(--color-border);
-    border-right: none;
-  }
-  
-  .toolbar {
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-    
-    .toolbar-group {
-      flex-wrap: wrap;
-    }
+
+  .attributes-list {
+    max-height: 180px;
   }
 }
 
 @media (max-width: 768px) {
+  .editor-container {
+    padding: 10px 10px 14px;
+  }
+
   .editor-layout {
-    height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
   }
-  
-  .toolbar {
-    padding: var(--spacing-md);
-    
-    .status-text {
-      display: none; // Hide status on mobile
-    }
-  }
-  
-  .properties-section {
-    padding: var(--spacing-md);
-  }
-  
-  .attribute-fields {
-    grid-template-columns: 1fr !important;
+
+  .diagram-canvas {
+    min-height: 360px;
   }
 }

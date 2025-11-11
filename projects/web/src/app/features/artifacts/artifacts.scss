@@ -1,0 +1,263 @@
+.artifacts-title {
+  margin: 16px 0 10px;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #111827;
+}
+
+.artifacts-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 16px 16px 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Opciones de artefacto */
+
+.artifact-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.artifact-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 9px;
+  border-radius: 10px;
+  border: 1px solid #f3f4f6;
+  background-color: #f9fafb;
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+  font-size: 12px;
+  color: #111827;
+}
+
+.artifact-option input[type="checkbox"] {
+  margin-top: 2px;
+  width: 14px;
+  height: 14px;
+  accent-color: #e11d48;
+  cursor: pointer;
+}
+
+.artifact-option:hover {
+  border-color: #e11d48;
+  box-shadow: 0 4px 10px rgba(225, 29, 72, 0.12);
+  background-color: #fff;
+}
+
+.artifact-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.artifact-title {
+  font-weight: 600;
+  font-size: 12px;
+  color: #111827;
+}
+
+.artifact-desc {
+  font-size: 10px;
+  color: #6b7280;
+}
+
+/* Configuración (package/db/migrations) */
+
+.artifact-config {
+  display: grid;
+  grid-template-columns: 2fr 1.4fr 1.4fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: #374151;
+}
+
+.field-label {
+  font-weight: 500;
+}
+
+.field-input {
+  padding: 7px 9px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #111827;
+  transition: all 0.18s ease-in-out;
+}
+
+.field-input::placeholder {
+  color: #9ca3af;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.12);
+}
+
+/* Acción principal */
+
+.artifact-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 9px;
+  border: none;
+  background-color: #e11d48;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #be123c;
+  box-shadow: 0 6px 14px rgba(190, 18, 60, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  background-color: #9f1239;
+  box-shadow: 0 3px 8px rgba(148, 27, 65, 0.25);
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.65;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* Tabla de artefactos generados */
+
+.artifacts-subtitle {
+  margin: 18px 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.artifacts-table-wrapper {
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+  padding: 10px 12px 10px;
+}
+
+.artifacts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px;
+  color: #111827;
+}
+
+.artifacts-table thead tr {
+  background-color: #f9fafb;
+}
+
+.artifacts-table th,
+.artifacts-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: left;
+}
+
+.artifacts-table th {
+  font-weight: 600;
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.artifacts-table tbody tr:hover {
+  background-color: #fef2f2;
+}
+
+.type-cell {
+  font-weight: 500;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Botón descargar */
+
+.btn-outline {
+  padding: 4px 9px;
+  border-radius: 7px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  font-size: 10px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+}
+
+.btn-outline:hover {
+  border-color: #e11d48;
+  color: #e11d48;
+  box-shadow: 0 3px 8px rgba(225, 29, 72, 0.16);
+}
+
+.btn-xs {
+  font-size: 9px;
+  padding: 3px 7px;
+}
+
+/* Empty state */
+
+.empty-state {
+  padding: 10px 6px 4px;
+  text-align: center;
+}
+
+.text-muted {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .artifacts-card {
+    padding: 12px;
+  }
+
+  .artifact-config {
+    grid-template-columns: 1fr;
+  }
+
+  .artifacts-table-wrapper {
+    padding: 8px;
+    overflow-x: auto;
+  }
+}

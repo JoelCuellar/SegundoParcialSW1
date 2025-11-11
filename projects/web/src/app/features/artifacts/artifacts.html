@@ -1,62 +1,64 @@
-<h2>Artefactos → Generar</h2>
+<h2 class="artifacts-title">Artefactos → Generar</h2>
 
-<div class="card">
-  <div class="row">
-    <label
-      ><input
+<div class="artifacts-card">
+  <div class="artifact-types">
+    <label class="artifact-option">
+      <input
         type="checkbox"
         [checked]="types().includes('SPRING_BOOT_PROJECT')"
         (change)="toggle('SPRING_BOOT_PROJECT')"
       />
-      Spring Boot (CRUD)</label
-    >
+      <div class="artifact-label">
+        <span class="artifact-title">Spring Boot CRUD</span>
+        <span class="artifact-desc">Proyecto base con endpoints y capas generadas.</span>
+      </div>
+    </label>
 
-    <label
-      ><input
-        type="checkbox"
-        [checked]="types().includes('SQL_DDL')"
-        (change)="toggle('SQL_DDL')"
-      />
-      SQL DDL</label
-    >
-
-    <label
-      ><input
-        type="checkbox"
-        [checked]="types().includes('MIGRATIONS_FLYWAY')"
-        (change)="toggle('MIGRATIONS_FLYWAY')"
-      />
-      Migraciones Flyway</label
-    >
-
-    <label
-      ><input
-        type="checkbox"
-        [checked]="types().includes('OPENAPI_SPEC')"
-        (change)="toggle('OPENAPI_SPEC')"
-      />
-      OpenAPI (nota)</label
-    >
-
-    <label
-      ><input
+    <label class="artifact-option">
+      <input
         type="checkbox"
         [checked]="types().includes('POSTMAN_COLLECTION')"
         (change)="toggle('POSTMAN_COLLECTION')"
       />
-      Postman Collection</label
-    >
-  </div>
-
-  <div class="row">
-    <label>
-      Package Base
-      <input class="input" #pkg [value]="packageBase()" (input)="packageBase.set(pkg.value)" />
+      <div class="artifact-label">
+        <span class="artifact-title">Postman Collection</span>
+        <span class="artifact-desc">Colección para probar los endpoints generados.</span>
+      </div>
     </label>
 
-    <label>
-      DB Engine
-      <select #dbsel [value]="dbEngine()" (change)="onDbEngineChange(dbsel.value)">
+    <label class="artifact-option">
+      <input
+        type="checkbox"
+        [checked]="types().includes('FLUTTER_APP')"
+        (change)="toggle('FLUTTER_APP')"
+      />
+      <div class="artifact-label">
+        <span class="artifact-title">Flutter App</span>
+        <span class="artifact-desc">Frontend base en Flutter para consumir el API.</span>
+      </div>
+    </label>
+  </div>
+
+  <div class="artifact-config">
+    <label class="field">
+      <span class="field-label">Package Base</span>
+      <input
+        class="field-input"
+        #pkg
+        [value]="packageBase()"
+        (input)="packageBase.set(pkg.value)"
+        placeholder="com.ejemplo.demo"
+      />
+    </label>
+
+    <label class="field">
+      <span class="field-label">DB Engine</span>
+      <select
+        class="field-input"
+        #dbsel
+        [value]="dbEngine()"
+        (change)="onDbEngineChange(dbsel.value)"
+      >
         <option>POSTGRESQL</option>
         <option>MYSQL</option>
         <option>MARIADB</option>
@@ -64,36 +66,56 @@
       </select>
     </label>
 
-    <label>
-      Migrations
-      <select #migr [value]="migrationTool()" (change)="onMigrationChange(migr.value)">
+    <label class="field">
+      <span class="field-label">Migrations</span>
+      <select
+        class="field-input"
+        #migr
+        [value]="migrationTool()"
+        (change)="onMigrationChange(migr.value)"
+      >
         <option>FLYWAY</option>
         <option>LIQUIBASE</option>
       </select>
     </label>
   </div>
 
-  <button class="btn btn--primary" (click)="generate()" [disabled]="loading()">
-    {{ loading() ? 'Generando…' : 'Generar' }}
-  </button>
+  <div class="artifact-actions">
+    <button class="btn-primary" (click)="generate()" [disabled]="loading()">
+      {{ loading() ? 'Generando…' : 'Generar artefactos' }}
+    </button>
+  </div>
 </div>
 
-<h3>Generados</h3>
-<table class="table">
-  <thead>
-    <tr>
-      <th>Tipo</th>
-      <th>Fecha</th>
-      <th>Tamaño</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let it of items()">
-      <td>{{ it.type }}</td>
-      <td>{{ it.createdAt | date : 'medium' }}</td>
-      <td>{{ it.sizeBytes }}</td>
-      <td><button (click)="download(it.id)">Descargar</button></td>
-    </tr>
-  </tbody>
-</table>
+<h3 class="artifacts-subtitle">Generados</h3>
+
+<div class="artifacts-table-wrapper">
+  <table class="artifacts-table" *ngIf="items().length > 0; else emptyList">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Fecha</th>
+        <th>Tamaño</th>
+        <th class="text-right">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let it of items()">
+        <td class="type-cell">{{ it.type }}</td>
+        <td>{{ it.createdAt | date : 'medium' }}</td>
+        <td>{{ it.sizeBytes | number }} bytes</td>
+        <td class="text-right">
+          <button class="btn-outline btn-xs" (click)="download(it.id)">
+            Descargar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #emptyList>
+    <div class="empty-state">
+      <p class="text-muted">Aún no se han generado artefactos para este proyecto.</p>
+    </div>
+  </ng-template>
+</div>

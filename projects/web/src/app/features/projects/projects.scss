@@ -1,251 +1,393 @@
+/* PROJECTS COMPONENT */
+
+/* Contenedor principal */
 .projects-container {
-  min-height: 100vh;
-  background-color: var(--color-background);
-}
-
-.projects-header {
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--spacing-2xl) 0;
-  
-  .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--spacing-2xl);
-  }
-  
-  .header-title {
-    flex: 1;
-    
-    h1 {
-      margin: 0 0 var(--spacing-sm) 0;
-      color: var(--color-text);
-      font-size: var(--font-size-3xl);
-      font-weight: 700;
-    }
-    
-    p {
-      margin: 0;
-      font-size: var(--font-size-lg);
-    }
-  }
-  
-  .workspace-selector {
-    display: flex;
-    align-items: flex-end;
-    gap: var(--spacing-md);
-    min-width: 300px;
-    
-    app-form-field {
-      flex: 1;
-    }
-  }
-}
-
-.projects-content {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--spacing-2xl) var(--spacing-lg);
+  margin: 24px auto;
+  padding: 0 20px 32px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #111827;
 }
 
+/* Header de sección */
+.projects-header {
+  margin-bottom: 18px;
+}
+
+.projects-header .header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.header-title h1 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.header-title .text-muted {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Selector de workspace */
+.workspace-selector {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.workspace-selector app-form-field {
+  display: block;
+}
+
+.workspace-selector select {
+  width: 240px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  color: #111827;
+  background-color: #ffffff;
+  transition: all 0.18s ease-in-out;
+}
+
+.workspace-selector select:focus {
+  outline: none;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15);
+}
+
+/* Botón recargar */
+.workspace-selector .btn-outline {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+}
+
+.workspace-selector .btn-outline:hover:not(:disabled) {
+  border-color: #e11d48;
+  color: #e11d48;
+  box-shadow: 0 3px 8px rgba(148, 27, 65, 0.18);
+}
+
+.workspace-selector .btn-outline:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Contenido principal */
+.projects-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Banner de error */
 .error-banner {
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
-  color: var(--color-error);
+  padding: 9px 11px;
+  border-radius: 8px;
+  font-size: 13px;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
+/* Card base (aplica a crear y a cada proyecto) */
+app-card {
+  display: block;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 16px 16px 14px;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+/* Card crear proyecto */
 .create-project-card {
-  margin-bottom: var(--spacing-2xl);
-  
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
-    
-    app-form-field:first-child {
-      grid-column: 1 / -1;
-    }
-  }
-  
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-  }
+  border-left: 3px solid #e11d48;
 }
 
-.projects-grid {
+.form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: var(--spacing-xl);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 50px;
+  margin: 10px;
 }
 
-.project-card {
-  .project-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    
-    .project-info {
-      flex: 1;
-      
-      .project-name {
-        margin: 0 0 var(--spacing-xs) 0;
-        font-size: var(--font-size-lg);
-        font-weight: 600;
-        color: var(--color-text);
-      }
-      
-      .project-status {
-        display: inline-block;
-        padding: var(--spacing-xs) var(--spacing-sm);
-        border-radius: var(--radius-sm);
-        font-size: var(--font-size-xs);
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        
-        &.status-active {
-          background-color: rgba(16, 185, 129, 0.1);
-          color: var(--color-success);
-        }
-        
-        &.status-archived {
-          background-color: rgba(107, 114, 128, 0.1);
-          color: var(--color-text-muted);
-        }
-      }
-    }
-  }
+app-form-field {
+  display: block;
   
-  .project-content {
-    .project-description {
-      color: var(--color-text-muted);
-      margin-bottom: var(--spacing-lg);
-      line-height: 1.5;
-    }
-    
-    .project-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--spacing-xs);
-      margin-bottom: var(--spacing-lg);
-      
-      .tag {
-        display: inline-block;
-        padding: var(--spacing-xs) var(--spacing-sm);
-        background-color: var(--color-accent);
-        color: var(--color-text);
-        border-radius: var(--radius-sm);
-        font-size: var(--font-size-xs);
-        font-weight: 500;
-      }
-    }
-    
-    .project-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--spacing-sm);
-      
-      a, button {
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-    }
-  }
-  
-  .project-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    
-    .project-meta {
-      flex: 1;
-    }
-    
-    .project-controls {
-      display: flex;
-      gap: var(--spacing-xs);
-    }
-  }
 }
 
-.empty-state {
-  text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-lg);
-  
-  .empty-content {
-    max-width: 400px;
-    margin: 0 auto;
-    
-    h3 {
-      color: var(--color-text);
-      margin-bottom: var(--spacing-md);
-    }
-    
-    p {
-      font-size: var(--font-size-lg);
-      margin: 0;
-    }
-  }
+app-form-field input {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  color: #111827;
+  background-color: #ffffff;
+  transition: all 0.18s ease-in-out;
 }
 
-.loading-state {
-  text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-lg);
-  color: var(--color-text-muted);
+app-form-field input::placeholder {
+  color: #9ca3af;
 }
 
-// Button size variants
+app-form-field input:focus {
+  outline: none;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15);
+}
+
+/* Botones reutilizables en esta vista */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: none;
+  background-color: #e11d48;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #be123c;
+  box-shadow: 0 6px 14px rgba(190, 18, 60, 0.32);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  background-color: #9f1239;
+  box-shadow: 0 3px 8px rgba(148, 27, 65, 0.32);
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: #f97316;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+}
+
+.btn-secondary:hover {
+  background-color: #ea580c;
+}
+
+.btn-outline {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+}
+
+.btn-outline:hover:not(.text-error):not(:disabled) {
+  border-color: #e11d48;
+  color: #e11d48;
+  box-shadow: 0 3px 8px rgba(148, 27, 65, 0.18);
+}
+
 .btn-sm {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  font-size: var(--font-size-sm);
+  padding: 5px 10px;
+  font-size: 11px;
 }
 
 .btn-xs {
-  padding: calc(var(--spacing-xs) / 2) var(--spacing-xs);
-  font-size: var(--font-size-xs);
+  padding: 3px 8px;
+  font-size: 10px;
+}
+
+/* Colores utilitarios */
+.text-muted {
+  color: #6b7280;
 }
 
 .text-error {
-  color: var(--color-error) !important;
-  
-  &:hover {
-    color: var(--color-error) !important;
-    opacity: 0.8;
-  }
+  color: #e11d48;
 }
 
-// Responsive design
-@media (max-width: 768px) {
-  .projects-header .header-content {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-lg);
-  }
-  
-  .workspace-selector {
-    min-width: auto;
-  }
-  
-  .create-project-card .form-grid {
-    grid-template-columns: 1fr;
-    
-    app-form-field:first-child {
-      grid-column: 1;
-    }
-  }
-  
-  .projects-grid {
-    grid-template-columns: 1fr;
-  }
+/* Grid de proyectos */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+/* Card de proyecto */
+.project-card {
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.1);
+  border-color: #fee2e2;
+}
+
+/* Header del proyecto */
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.project-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.project-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Status */
+.project-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.status-active {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-archived {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+/* Contenido del proyecto */
+.project-content {
+  margin-top: 4px;
+}
+
+.project-description {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+/* Tags */
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.project-tags .tag {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background-color: #f3f4f6;
+  font-size: 9px;
+  color: #6b7280;
+}
+
+/* Acciones del proyecto */
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* Footer meta y controles */
+.project-footer {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-meta small {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.project-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Botón eliminar con énfasis en rojo */
+.project-controls .btn-outline.text-error {
+  border-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.project-controls .btn-outline.text-error:hover {
+  background-color: #fee2e2;
+  box-shadow: 0 3px 8px rgba(185, 28, 28, 0.18);
+}
+
+/* Empty state */
+.empty-state {
+  margin-top: 8px;
+  padding: 18px 14px;
+  border-radius: 12px;
+  background-color: #f9fafb;
+  border: 1px dashed #e5e7eb;
+}
+
+.empty-content {
+  text-align: center;
+}
+
+.empty-content h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.empty-content .text-muted {
+  font-size: 12px;
+}
+
+/* Loading state */
+.loading-state {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
 }

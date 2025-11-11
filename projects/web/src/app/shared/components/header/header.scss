@@ -1,56 +1,107 @@
+/* HEADER COMPONENT */
+
 .app-header {
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  border-bottom: 1px solid #f3f4f6;
 }
 
-.header-content {
+.app-header .header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--spacing-lg);
-  height: 64px;
+  gap: 16px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.header-brand {
-  h2 {
-    margin: 0;
-    color: var(--color-primary);
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-  }
+/* Marca / título */
+.header-brand h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: 0.04em;
 }
 
+/* Navegación */
 .header-nav {
   display: flex;
-  gap: var(--spacing-xl);
-  
-  a {
-    text-decoration: none;
-    color: var(--color-text);
-    font-weight: 500;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--radius-md);
-    transition: all 0.15s ease-in-out;
-    
-    &:hover {
-      background-color: var(--color-surface-subtle);
-    }
-    
-    &.active {
-      background-color: var(--color-primary);
-      color: white;
-    }
-  }
+  align-items: center;
+  gap: 16px;
+  flex: 1;
 }
 
+.header-nav a {
+  position: relative;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  padding: 4px 0;
+  transition: all 0.18s ease-in-out;
+}
+
+.header-nav a:hover {
+  color: #111827;
+}
+
+.header-nav a.active {
+  color: #e11d48;
+}
+
+.header-nav a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background-color: #e11d48;
+  border-radius: 999px;
+}
+
+/* Acciones */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+}
+
+/* Botón outline reutilizable aquí */
+.header-actions .btn-outline {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e11d48;
+  background-color: transparent;
+  color: #e11d48;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+}
+
+.header-actions .btn-outline:hover {
+  background-color: #e11d48;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(225, 29, 72, 0.3);
+}
+
+.header-actions .btn-outline:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.2);
+}
+
+/* Responsive header */
+@media (max-width: 768px) {
+  .app-header .header-content {
+    padding: 8px 14px;
+    gap: 10px;
+  }
+
+  .header-nav {
+    justify-content: flex-start;
+  }
 }

@@ -29,12 +29,13 @@
           <span class="status-text">{{ status() }}</span>
         </div>
       </div>
+
       <div class="toolbar-group">
-  <input type="file" #umlImage accept="image/*" hidden (change)="onUmlImageSelected($event)" />
-  <button type="button" class="btn-outline" (click)="umlImage.click()">
-    Importar imagen UML
-  </button>
-</div>
+        <input type="file" #umlImage accept="image/*" hidden (change)="onUmlImageSelected($event)" />
+        <button type="button" class="btn-outline" (click)="umlImage.click()">
+          Importar imagen UML
+        </button>
+      </div>
       
       <div #diagramDiv class="diagram-canvas"></div>
     </div>
@@ -59,16 +60,17 @@
               hint="entity, valueObject, service, etc.">
               <input type="text" formControlName="stereotype" placeholder="entity" />
             </app-form-field>
+
             <div class="class-kind">
-  <label class="checkbox-label">
-    <input type="checkbox" formControlName="isInterface" />
-    <span>Es interfaz</span>
-  </label>
-  <label class="checkbox-label">
-    <input type="checkbox" formControlName="isAbstract" />
-    <span>Es abstracta</span>
-  </label>
-</div>
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="isInterface" />
+                <span>Es interfaz</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="isAbstract" />
+                <span>Es abstracta</span>
+              </label>
+            </div>
 
             <div class="attributes-section">
               <div class="section-header">
@@ -85,11 +87,15 @@
                   class="attribute-row">
                   
                   <div class="attribute-fields">
-                    <app-form-field label="Nombre" [error]="attrGroup.get('name')?.invalid && attrGroup.get('name')?.touched ? 'Requerido' : undefined">
+                    <app-form-field
+                      label="Nombre"
+                      [error]="attrGroup.get('name')?.invalid && attrGroup.get('name')?.touched ? 'Requerido' : undefined">
                       <input type="text" formControlName="name" placeholder="campo" />
                     </app-form-field>
                     
-                    <app-form-field label="Tipo" [error]="attrGroup.get('type')?.invalid && attrGroup.get('type')?.touched ? 'Requerido' : undefined">
+                    <app-form-field
+                      label="Tipo"
+                      [error]="attrGroup.get('type')?.invalid && attrGroup.get('type')?.touched ? 'Requerido' : undefined">
                       <input type="text" formControlName="type" placeholder="string" />
                     </app-form-field>
                   </div>
@@ -128,6 +134,8 @@
           </form>
         </div>
 
+        <!-- === FORM RELACIÓN SELECCIONADA === -->
+
         <div *ngIf="selectedType() === 'link'">
           <form [formGroup]="linkForm" (ngSubmit)="applyLinkForm()">
             <app-form-field label="Tipo de relación">
@@ -143,13 +151,23 @@
             <app-form-field 
               label="Cardinalidad origen" 
               hint="1, 0..1, N, 1..N">
-              <input type="text" formControlName="fromCard" placeholder="N" />
+              <select formControlName="fromCard">
+                <option value="1">1</option>
+                <option value="0..1">0..1</option>
+                <option value="N">N</option>
+                <option value="1..N">1..N</option>
+              </select>
             </app-form-field>
 
             <app-form-field 
               label="Cardinalidad destino" 
               hint="1, 0..1, N, 1..N">
-              <input type="text" formControlName="toCard" placeholder="1" />
+              <select formControlName="toCard">
+                <option value="1">1</option>
+                <option value="0..1">0..1</option>
+                <option value="N">N</option>
+                <option value="1..N">1..N</option>
+              </select>
             </app-form-field>
 
             <div class="form-actions">
@@ -173,59 +191,73 @@
           </p>
         </div>
       </app-card>
+
+      <!-- === CARD CREAR RELACIÓN === -->
+
       <app-card title="Relaciones">
-  <form [formGroup]="relationForm" (ngSubmit)="createRelationFromForm()">
-    <div class="grid-2">
-      <app-form-field label="Clase origen">
-        <select formControlName="from">
-          <option value="" disabled>— seleccionar —</option>
-          <option *ngFor="let n of entityNames" [value]="n">{{ n }}</option>
-        </select>
-      </app-form-field>
+        <form [formGroup]="relationForm" (ngSubmit)="createRelationFromForm()">
+          <div class="grid-2">
+            <app-form-field label="Clase origen">
+              <select formControlName="from">
+                <option value="" disabled>— seleccionar —</option>
+                <option *ngFor="let n of entityNames" [value]="n">{{ n }}</option>
+              </select>
+            </app-form-field>
 
-      <app-form-field label="Clase destino">
-        <select formControlName="to">
-          <option value="" disabled>— seleccionar —</option>
-          <option *ngFor="let n of entityNames" [value]="n">{{ n }}</option>
-        </select>
-      </app-form-field>
-    </div>
+            <app-form-field label="Clase destino">
+              <select formControlName="to">
+                <option value="" disabled>— seleccionar —</option>
+                <option *ngFor="let n of entityNames" [value]="n">{{ n }}</option>
+              </select>
+            </app-form-field>
+          </div>
 
-    <app-form-field label="Tipo de relación">
-      <select formControlName="kind">
-        <option value="association">Asociación</option>
-        <option value="aggregation">Agregación</option>
-        <option value="composition">Composición</option>
-        <option value="generalization">Herencia</option>
-        <option value="realization">Realización</option>
-        <option value="dependency">Dependencia</option>
-      </select>
-    </app-form-field>
+          <app-form-field label="Tipo de relación">
+            <select formControlName="kind">
+              <option value="association">Asociación</option>
+              <option value="aggregation">Agregación</option>
+              <option value="composition">Composición</option>
+              <option value="generalization">Herencia</option>
+              <option value="realization">Realización</option>
+              <option value="dependency">Dependencia</option>
+            </select>
+          </app-form-field>
 
-    <div class="grid-2">
-      <app-form-field label="Cardinalidad origen" hint="1, 0..1, N, 1..N">
-        <input type="text" formControlName="fromCard" placeholder="N" />
-      </app-form-field>
-      <app-form-field label="Cardinalidad destino" hint="1, 0..1, N, 1..N">
-        <input type="text" formControlName="toCard" placeholder="1" />
-      </app-form-field>
-    </div>
+          <div class="grid-2">
+            <app-form-field label="Cardinalidad origen" hint="1, 0..1, N, 1..N">
+              <select formControlName="fromCard">
+                <option value="1">1</option>
+                <option value="0..1">0..1</option>
+                <option value="N">N</option>
+                <option value="1..N">1..N</option>
+              </select>
+            </app-form-field>
 
-    <div class="hint-box">
-      <p class="text-muted">
-        Si eliges <strong>N</strong> en ambos extremos (y tipo asociación/agregación/composición),
-        se creará automáticamente una <strong>clase intermedia</strong> con
-        <em>FKs</em> a ambas clases y <strong>PK compuesta</strong>.
-      </p>
-    </div>
+            <app-form-field label="Cardinalidad destino" hint="1, 0..1, N, 1..N">
+              <select formControlName="toCard">
+                <option value="1">1</option>
+                <option value="0..1">0..1</option>
+                <option value="N">N</option>
+                <option value="1..N">1..N</option>
+              </select>
+            </app-form-field>
+          </div>
 
-    <div class="form-actions">
-      <button type="submit" class="btn-primary full-width" [disabled]="relationForm.invalid">
-        Crear relación
-      </button>
-    </div>
-  </form>
-</app-card>
+          <div class="hint-box">
+            <p class="text-muted">
+              Si eliges <strong>N</strong> en ambos extremos (y tipo asociación/agregación/composición),
+              se creará automáticamente una <strong>clase intermedia</strong> con
+              <em>FKs</em> a ambas clases y <strong>PK compuesta</strong>.
+            </p>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary full-width" [disabled]="relationForm.invalid">
+              Crear relación
+            </button>
+          </div>
+        </form>
+      </app-card>
 
     </div>
   </div>
