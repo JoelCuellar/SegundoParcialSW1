@@ -1,0 +1,375 @@
+{
+  "info": {
+    "name": "ModelEditor – API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "List User",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/user"
+          }
+        },
+        {
+          "name": "Get User by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/user/:id"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/user",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/user/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/user/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "List Order",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/order"
+          }
+        },
+        {
+          "name": "Get Order by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/order/:id"
+          }
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/order",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/order/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/order/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Address",
+      "item": [
+        {
+          "name": "List Address",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/address"
+          }
+        },
+        {
+          "name": "Get Address by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/address/:id"
+          }
+        },
+        {
+          "name": "Create Address",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/address",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/address/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/address/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clase1",
+      "item": [
+        {
+          "name": "List Clase1",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/clase1"
+          }
+        },
+        {
+          "name": "Get Clase1 by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/clase1/:id"
+          }
+        },
+        {
+          "name": "Create Clase1",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/clase1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Clase1",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/clase1/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Clase1",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/clase1/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clase",
+      "item": [
+        {
+          "name": "List Clase",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/clase"
+          }
+        },
+        {
+          "name": "Get Clase by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/clase/:id"
+          }
+        },
+        {
+          "name": "Create Clase",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/clase",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Clase",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/clase/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Clase",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/clase/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clase1ClaseJoin",
+      "item": [
+        {
+          "name": "List Clase1ClaseJoin",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/clase1ClaseJoin"
+          }
+        },
+        {
+          "name": "Get Clase1ClaseJoin by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/clase1ClaseJoin/:id"
+          }
+        },
+        {
+          "name": "Create Clase1ClaseJoin",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/clase1ClaseJoin",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Clase1ClaseJoin",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/clase1ClaseJoin/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Clase1ClaseJoin",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/clase1ClaseJoin/:id"
+          }
+        }
+      ]
+    }
+  ]
+}

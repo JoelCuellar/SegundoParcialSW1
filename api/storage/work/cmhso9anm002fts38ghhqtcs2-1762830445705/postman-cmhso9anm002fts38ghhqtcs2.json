@@ -1,0 +1,675 @@
+{
+  "info": {
+    "name": "ModelEditor – API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Categora",
+      "item": [
+        {
+          "name": "List Categora",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/categora"
+          }
+        },
+        {
+          "name": "Get Categora by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/categora/:id"
+          }
+        },
+        {
+          "name": "Create Categora",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/categora",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Categora",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/categora/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Categora",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/categora/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Producto",
+      "item": [
+        {
+          "name": "List Producto",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/producto"
+          }
+        },
+        {
+          "name": "Get Producto by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/producto/:id"
+          }
+        },
+        {
+          "name": "Create Producto",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/producto",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Producto",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/producto/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Producto",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/producto/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalogo",
+      "item": [
+        {
+          "name": "List Catalogo",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/catalogo"
+          }
+        },
+        {
+          "name": "Get Catalogo by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/catalogo/:id"
+          }
+        },
+        {
+          "name": "Create Catalogo",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/catalogo",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Catalogo",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/catalogo/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Catalogo",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/catalogo/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "producto_catalogo",
+      "item": [
+        {
+          "name": "List producto_catalogo",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/producto_catalogo"
+          }
+        },
+        {
+          "name": "Get producto_catalogo by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/producto_catalogo/:id"
+          }
+        },
+        {
+          "name": "Create producto_catalogo",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/producto_catalogo",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update producto_catalogo",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/producto_catalogo/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete producto_catalogo",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/producto_catalogo/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "detalle_pedido",
+      "item": [
+        {
+          "name": "List detalle_pedido",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/detalle_pedido"
+          }
+        },
+        {
+          "name": "Get detalle_pedido by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/detalle_pedido/:id"
+          }
+        },
+        {
+          "name": "Create detalle_pedido",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/detalle_pedido",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update detalle_pedido",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/detalle_pedido/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete detalle_pedido",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/detalle_pedido/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pedido",
+      "item": [
+        {
+          "name": "List Pedido",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/pedido"
+          }
+        },
+        {
+          "name": "Get Pedido by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/pedido/:id"
+          }
+        },
+        {
+          "name": "Create Pedido",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/pedido",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Pedido",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/pedido/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Pedido",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/pedido/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delivery",
+      "item": [
+        {
+          "name": "List Delivery",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/delivery"
+          }
+        },
+        {
+          "name": "Get Delivery by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/delivery/:id"
+          }
+        },
+        {
+          "name": "Create Delivery",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/delivery",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Delivery",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/delivery/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Delivery",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/delivery/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cliente",
+      "item": [
+        {
+          "name": "List Cliente",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/cliente"
+          }
+        },
+        {
+          "name": "Get Cliente by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/cliente/:id"
+          }
+        },
+        {
+          "name": "Create Cliente",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/cliente",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Cliente",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/cliente/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Cliente",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/cliente/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Nota_venta",
+      "item": [
+        {
+          "name": "List Nota_venta",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/nota_venta"
+          }
+        },
+        {
+          "name": "Get Nota_venta by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/nota_venta/:id"
+          }
+        },
+        {
+          "name": "Create Nota_venta",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/nota_venta",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update Nota_venta",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/nota_venta/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete Nota_venta",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/nota_venta/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CatalogoProductoJoin",
+      "item": [
+        {
+          "name": "List CatalogoProductoJoin",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/catalogoProductoJoin"
+          }
+        },
+        {
+          "name": "Get CatalogoProductoJoin by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/catalogoProductoJoin/:id"
+          }
+        },
+        {
+          "name": "Create CatalogoProductoJoin",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/catalogoProductoJoin",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update CatalogoProductoJoin",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/catalogoProductoJoin/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete CatalogoProductoJoin",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/catalogoProductoJoin/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "PedidoProductoJoin",
+      "item": [
+        {
+          "name": "List PedidoProductoJoin",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/pedidoProductoJoin"
+          }
+        },
+        {
+          "name": "Get PedidoProductoJoin by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/pedidoProductoJoin/:id"
+          }
+        },
+        {
+          "name": "Create PedidoProductoJoin",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/pedidoProductoJoin",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Update PedidoProductoJoin",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/pedidoProductoJoin/:id",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Delete PedidoProductoJoin",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/pedidoProductoJoin/:id"
+          }
+        }
+      ]
+    }
+  ]
+}
