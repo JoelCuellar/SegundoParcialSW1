@@ -19,6 +19,14 @@ type ArtifactSummary = Pick<
   Artifact,
   'id' | 'type' | 'storageKey' | 'createdAt'
 >;
+const SUPPORTED: ArtifactType[] = [
+  'SPRING_BOOT_PROJECT',
+  'SQL_DDL',
+  'MIGRATIONS_FLYWAY',
+  'OPENAPI_SPEC',
+  'POSTMAN_COLLECTION',
+  'FLUTTER_APP',
+];
 
 export class GenerateDto {
   types: $Enums.ArtifactType[]; // p.ej. ["SPRING_BOOT_PROJECT","POSTMAN_COLLECTION"]
@@ -303,6 +311,18 @@ export class CodegenService {
 
   // ====== GENERACIÓN ======
   async generateArtifacts(projectId: string, dto: GenerateDto) {
+    const requested: ArtifactType[] = (dto.types ?? [])
+      .map((t: any) => String(t).trim().toUpperCase())
+      .filter((t: any) =>
+        SUPPORTED.includes(t as ArtifactType),
+      ) as ArtifactType[];
+
+    if (requested.length === 0) {
+      requested.push('SPRING_BOOT_PROJECT', 'POSTMAN_COLLECTION');
+    }
+
+    // (opcional) log de depuración:
+    console.log('[codegen] requested:', requested);
     const types = dto.types?.length
       ? dto.types
       : ['SPRING_BOOT_PROJECT', 'POSTMAN_COLLECTION'];
@@ -332,7 +352,7 @@ export class CodegenService {
     }[] = [];
 
     // 1) SPRING BOOT PROJECT (ZIP)
-    if (types.includes('SPRING_BOOT_PROJECT')) {
+    if (requested.includes('SPRING_BOOT_PROJECT')) {
       const zipPath = path.join(outDir, `springboot-${projectId}.zip`);
       await this.buildSpringBootZip(zipPath, { pkg, db, mig, entities, rels });
       artifacts.push({
@@ -343,7 +363,10 @@ export class CodegenService {
     }
 
     // 2) SQL DDL (archivo suelto)
-    if (types.includes('SQL_DDL') || types.includes('MIGRATIONS_FLYWAY')) {
+    if (
+      requested.includes('SQL_DDL') ||
+      requested.includes('MIGRATIONS_FLYWAY')
+    ) {
       const ddl = this.renderDDL({ db, entities, rels });
       const ddlPath = path.join(outDir, `schema-${projectId}.sql`);
       fs.writeFileSync(ddlPath, ddl, 'utf-8');
@@ -353,7 +376,7 @@ export class CodegenService {
         storageKey: `work/${path.basename(outDir)}/${path.basename(ddlPath)}`,
       });
 
-      if (types.includes('MIGRATIONS_FLYWAY')) {
+      if (requested.includes('MIGRATIONS_FLYWAY')) {
         const v1 = path.join(outDir, `V1__init.sql`);
         fs.writeFileSync(v1, ddl, 'utf-8');
         artifacts.push({
@@ -365,7 +388,7 @@ export class CodegenService {
     }
 
     // 3) POSTMAN (colección)
-    if (types.includes('POSTMAN_COLLECTION')) {
+    if (requested.includes('POSTMAN_COLLECTION')) {
       const pm = this.renderPostman({ pkg, entities });
       const pmPath = path.join(outDir, `postman-${projectId}.json`);
       fs.writeFileSync(pmPath, JSON.stringify(pm, null, 2), 'utf-8');
@@ -377,7 +400,7 @@ export class CodegenService {
     }
 
     // 4) OPENAPI (lo damos vía springdoc al ejecutar el app generado)
-    if (types.includes('OPENAPI_SPEC')) {
+    if (requested.includes('OPENAPI_SPEC')) {
       const oaPath = path.join(outDir, `openapi-note.txt`);
       fs.writeFileSync(
         oaPath,
@@ -390,28 +413,40 @@ export class CodegenService {
         storageKey: `work/${path.basename(outDir)}/${path.basename(oaPath)}`,
       });
     }
-    if (types.includes('FLUTTER_APP')) {
+    if (requested.includes('FLUTTER_APP')) {
+      console.log('[codegen] Generando FLUTTER_APP…');
       const zipPath = path.join(outDir, `flutter_${projectId}.zip`);
-      await this.buildFlutterZip(zipPath, {
-        project: {
-          id: projectId,
-          name:
-            (
-              await this.prisma.project.findFirst({
-                where: { id: projectId },
-                select: { name: true },
-              })
-            )?.name || 'App',
-        },
-        baseUrl: 'http://localhost:8080', // ajusta según despliegue
-        entities,
-        rels,
-      });
-      artifacts.push({
-        type: 'FLUTTER_APP',
-        file: zipPath,
-        storageKey: `work/${path.basename(outDir)}/${path.basename(zipPath)}`,
-      });
+      try {
+        await this.buildFlutterZip(zipPath, {
+          project: {
+            id: projectId,
+            name:
+              (
+                await this.prisma.project.findFirst({
+                  where: { id: projectId },
+                  select: { name: true },
+                })
+              )?.name || 'App',
+          },
+          baseUrl: process.env.FLUTTER_BASE_URL || 'http://localhost:8080', // ← más coherente con Postman
+          entities,
+          rels,
+        });
+
+        artifacts.push({
+          type: 'FLUTTER_APP',
+          file: zipPath,
+          storageKey: `work/${path.basename(outDir)}/${path.basename(zipPath)}`,
+        });
+
+        console.log('[codegen] FLUTTER_APP generado:', zipPath);
+      } catch (e) {
+        console.error('[codegen] FLUTTER_APP failed:', e);
+        // Hazlo visible: o lanzas error para que el cliente lo vea...
+        throw new BadRequestException(
+          'No se pudo generar el ZIP de Flutter: ' + (e as Error).message,
+        );
+      }
     }
 
     // Mover a storage/ y persistir Artifact
@@ -1027,17 +1062,31 @@ ALTER TABLE "${to.table}" ADD CONSTRAINT "fk_${to.table}_${from.table}"
       'templates',
       relPath,
     );
-    const full = fs.existsSync(fromDist)
-      ? fromDist
-      : fs.existsSync(fromSrc)
-        ? fromSrc
-        : null;
+
+    // si pide "flutter/..." probamos también "flutter_templates/..."
+    const altRel = relPath.startsWith('flutter/')
+      ? relPath.replace(/^flutter\//, 'flutter_templates/')
+      : relPath;
+
+    const altFromDist = path.join(__dirname, 'templates', altRel);
+    const altFromSrc = path.join(
+      process.cwd(),
+      'src',
+      'codegen',
+      'templates',
+      altRel,
+    );
+
+    const candidates = [fromDist, fromSrc, altFromDist, altFromSrc];
+    const full = candidates.find((p) => fs.existsSync(p));
 
     if (!full) {
       throw new Error(`Template not found: ${relPath}
-            Checked:
-            - ${fromDist}
-            - ${fromSrc}`);
+    Checked:
+    - ${fromDist}
+    - ${fromSrc}
+    - ${altFromDist}
+    - ${altFromSrc}`);
     }
 
     const src = fs.readFileSync(full, 'utf-8');
