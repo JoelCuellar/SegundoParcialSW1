@@ -35,11 +35,13 @@ export class GenerateDto {
   migrationTool?: 'FLYWAY' | 'LIQUIBASE';
   branchId?: string;
   modelVersionId?: string;
+  includeAuth?: boolean;
+  flutterBaseUrl?: string;
 }
 
 @Injectable()
 export class CodegenService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   // ===== Utilidades =====
   private ensureDir(p: string) {
@@ -122,12 +124,12 @@ export class CodegenService {
     // 2) versión (última si no se pasa)
     const mv = modelVersionId
       ? await this.prisma.modelVersion.findUnique({
-          where: { id: modelVersionId },
-        })
+        where: { id: modelVersionId },
+      })
       : await this.prisma.modelVersion.findFirst({
-          where: { projectId, branchId: bid },
-          orderBy: { createdAt: 'desc' },
-        });
+        where: { projectId, branchId: bid },
+        orderBy: { createdAt: 'desc' },
+      });
 
     if (!mv) throw new BadRequestException('No model version to generate from');
 
@@ -318,7 +320,7 @@ export class CodegenService {
       ) as ArtifactType[];
 
     if (requested.length === 0) {
-      requested.push('SPRING_BOOT_PROJECT', 'POSTMAN_COLLECTION');
+      requested.push('SPRING_BOOT_PROJECT', 'POSTMAN_COLLECTION', 'FLUTTER_APP');
     }
 
     // (opcional) log de depuración:
@@ -329,6 +331,8 @@ export class CodegenService {
     const pkg = dto.packageBase || 'com.acme.demo';
     const db: DbEngine = dto.dbEngine || 'POSTGRESQL';
     const mig = dto.migrationTool || 'FLYWAY';
+    const includeAuth = dto.includeAuth !== false; // por defecto true
+    const flutterBaseUrl = dto.flutterBaseUrl || process.env.FLUTTER_BASE_URL || 'http://localhost:8080';
 
     const { entities, rels, modelVersionId } = await this.loadIR(
       projectId,
@@ -350,11 +354,10 @@ export class CodegenService {
       file: string;
       storageKey: string;
     }[] = [];
-
     // 1) SPRING BOOT PROJECT (ZIP)
     if (requested.includes('SPRING_BOOT_PROJECT')) {
       const zipPath = path.join(outDir, `springboot-${projectId}.zip`);
-      await this.buildSpringBootZip(zipPath, { pkg, db, mig, entities, rels });
+      await this.buildSpringBootZip(zipPath, { pkg, db, mig, entities, rels, includeAuth });
       artifacts.push({
         type: 'SPRING_BOOT_PROJECT',
         file: zipPath,
@@ -389,7 +392,7 @@ export class CodegenService {
 
     // 3) POSTMAN (colección)
     if (requested.includes('POSTMAN_COLLECTION')) {
-      const pm = this.renderPostman({ pkg, entities });
+      const pm = this.renderPostman({ pkg, entities, includeAuth });
       const pmPath = path.join(outDir, `postman-${projectId}.json`);
       fs.writeFileSync(pmPath, JSON.stringify(pm, null, 2), 'utf-8');
       artifacts.push({
@@ -398,6 +401,8 @@ export class CodegenService {
         storageKey: `work/${path.basename(outDir)}/${path.basename(pmPath)}`,
       });
     }
+
+
 
     // 4) OPENAPI (lo damos vía springdoc al ejecutar el app generado)
     if (requested.includes('OPENAPI_SPEC')) {
@@ -428,10 +433,12 @@ export class CodegenService {
                 })
               )?.name || 'App',
           },
-          baseUrl: process.env.FLUTTER_BASE_URL || 'http://localhost:8080', // ← más coherente con Postman
+          baseUrl: flutterBaseUrl,
           entities,
           rels,
+          includeAuth,
         });
+
 
         artifacts.push({
           type: 'FLUTTER_APP',
@@ -684,6 +691,35 @@ export class CodegenService {
         inheritanceBase,
       };
     });
+    if (ctx.includeAuth) {
+      archive.append(this.tpl('springboot/security/SecurityConfig.hbs', ctx), {
+        name: `src/main/java/${groupPath}/config/SecurityConfig.java`,
+      });
+      archive.append(this.tpl('springboot/security/JwtTokenProvider.hbs', ctx), {
+        name: `src/main/java/${groupPath}/security/JwtTokenProvider.java`,
+      });
+      archive.append(this.tpl('springboot/security/JwtAuthFilter.hbs', ctx), {
+        name: `src/main/java/${groupPath}/security/JwtAuthFilter.java`,
+      });
+      archive.append(this.tpl('springboot/auth/User.hbs', ctx), {
+        name: `src/main/java/${groupPath}/domain/User.java`,
+      });
+      archive.append(this.tpl('springboot/auth/Role.hbs', ctx), {
+        name: `src/main/java/${groupPath}/domain/Role.java`,
+      });
+      archive.append(this.tpl('springboot/auth/UserRepository.hbs', ctx), {
+        name: `src/main/java/${groupPath}/repository/UserRepository.java`,
+      });
+      archive.append(this.tpl('springboot/auth/UserService.hbs', ctx), {
+        name: `src/main/java/${groupPath}/service/UserService.java`,
+      });
+      archive.append(this.tpl('springboot/auth/AuthController.hbs', ctx), {
+        name: `src/main/java/${groupPath}/web/AuthController.java`,
+      });
+      archive.append(this.tpl('springboot/auth/dto/AuthDtos.hbs', ctx), {
+        name: `src/main/java/${groupPath}/web/dto/AuthDtos.java`,
+      });
+    }
 
     // escribir fuentes Java
     for (const e of enrichedEntities) {
@@ -709,6 +745,7 @@ export class CodegenService {
 
     await archive.finalize();
     await done;
+
   }
   private async buildFlutterZip(zipPath: string, ctx: any) {
     const fs = await import('node:fs');
@@ -718,6 +755,12 @@ export class CodegenService {
 
     const output = fs.createWriteStream(zipPath);
     const archive = arch('zip', { zlib: { level: 9 } });
+
+    const done = new Promise<void>((resolve, reject) => {
+      output.on('close', () => resolve());
+      archive.on('error', (err: any) => reject(err));
+    });
+
     archive.pipe(output);
 
     const baseUrl = ctx.baseUrl || 'http://localhost:8080';
@@ -728,37 +771,31 @@ export class CodegenService {
       .replace(/([a-z])([A-Z])/g, '$1-$2')
       .toLowerCase();
 
-    // Enriquecer entidades para Dart
     const entities = ctx.entities.map((e: any) => {
-      // Campos Dart (todos nullable para simplificar)
       const dartFields = e.fields.map((f: any) => {
-        const dt = this.mapTypeToDart(f.type || '');
+        const dt = this.mapTypeToDart(f.javaType || '');
         const fromJson =
           dt === 'int'
             ? `j['${f.name}'] as int?`
             : dt === 'double'
-              ? `j['${f.name}'] as num?` +
-                ` != null ? (j['${f.name}'] as num).toDouble() : null`
+              ? `j['${f.name}'] as num? != null ? (j['${f.name}'] as num).toDouble() : null`
               : dt === 'bool'
                 ? `j['${f.name}'] as bool?`
-                : /* String/Fecha */ `j['${f.name}'] as String?`;
-        const toJson = dt === 'double' ? `${f.name}` : `${f.name}`;
-        const emptyExpr = 'null';
+                : `j['${f.name}'] as String?`;
         return {
           name: f.name,
           type: dt,
           nullable: '?',
           fromJson,
-          toJson,
-          emptyExpr,
+          toJson: `${f.name}`,
+          emptyExpr: 'null',
         };
       });
 
-      // Campos de formulario (escalares simples)
       const scalarFields = e.fields
-        .filter((f: any) => !f.pk) // si marcaste 'pk' arriba
+        .filter((f: any) => !f.pk)
         .map((f: any) => {
-          const dt = this.mapTypeToDart(f.type || '');
+          const dt = this.mapTypeToDart(f.javaType || '');
           const castFromString =
             dt === 'int'
               ? `int.tryParse(v ?? "")`
@@ -766,18 +803,17 @@ export class CodegenService {
                 ? `double.tryParse(v ?? "")`
                 : dt === 'bool'
                   ? `(v ?? "").toLowerCase() == "true"`
-                  : /* String */ `v ?? ""`;
+                  : `v ?? ""`;
           return { name: f.name, required: false, castFromString };
         });
 
-      // title/subtitle heurísticas
       const strField = e.fields.find((f: any) =>
-        (f.type || '').toLowerCase().includes('string'),
+        (f.javaType || '').toLowerCase().includes('string'),
       )?.name;
+
       const titleExpr = strField
         ? `${strField} ?? ""`
         : `${e.idField?.name}?.toString() ?? ""`;
-      const subtitleExpr = `""`;
 
       return {
         ...e,
@@ -785,11 +821,11 @@ export class CodegenService {
         scalarFields,
         idName: e.idField?.name || 'id',
         titleExpr,
-        subtitleExpr,
+        subtitleExpr: '""',
       };
     });
 
-    // Archivos raíz
+    // pubspec, main, api_client
     archive.append(
       this.tpl('flutter/pubspec.yaml.hbs', { appName, appNameKebab }),
       { name: 'pubspec.yaml' },
@@ -805,20 +841,58 @@ export class CodegenService {
       { name: 'lib/core/api_client.dart' },
     );
 
-    // Router y por-entidad
-    archive.append(this.tpl('flutter/lib/app_router.dart.hbs', { entities }), {
-      name: 'lib/app_router.dart',
-    });
+    // Router
+    archive.append(
+      this.tpl('flutter/lib/app_router.dart.hbs', {
+        entities,
+        includeAuth: ctx.includeAuth !== false,
+      }),
+      { name: 'lib/app_router.dart' },
+    );
 
+    // --- NUEVO: archivo de menú compartido (Drawer) ---
+    archive.append(
+      this.tpl('flutter/lib/features/_shared/app_menu.dart.hbs', {
+        appName,
+        entities,
+      }),
+      { name: 'lib/features/_shared/app_menu.dart' },
+    );
+
+    // Auth opcional
+    if (ctx.includeAuth !== false) {
+      archive.append(
+        this.tpl('flutter/lib/features/auth/data/auth_api.dart.hbs', {}),
+        { name: 'lib/features/auth/data/auth_api.dart' },
+      );
+      archive.append(
+        this.tpl('flutter/lib/features/auth/data/auth_repository.dart.hbs', {}),
+        { name: 'lib/features/auth/data/auth_repository.dart' },
+      );
+      archive.append(
+        this.tpl(
+          'flutter/lib/features/auth/presentation/login_page.dart.hbs',
+          {},
+        ),
+        { name: 'lib/features/auth/presentation/login_page.dart' },
+      );
+      archive.append(
+        this.tpl(
+          'flutter/lib/features/auth/presentation/register_page.dart.hbs',
+          {},
+        ),
+        { name: 'lib/features/auth/presentation/register_page.dart' },
+      );
+    }
+
+    // Features por entidad
     for (const e of entities) {
       archive.append(
         this.tpl(
           'flutter/lib/features/{{e.route}}/model/{{e.route}}.dart.hbs',
           { e },
         ),
-        {
-          name: `lib/features/${e.route}/model/${e.route}.dart`,
-        },
+        { name: `lib/features/${e.route}/model/${e.route}.dart` },
       );
       archive.append(
         this.tpl(
@@ -841,7 +915,10 @@ export class CodegenService {
     }
 
     await archive.finalize();
+    await done;
   }
+
+
 
   private renderDDL(ctx: any): string {
     // Tipos locales para evitar inferencia a {}
@@ -971,58 +1048,81 @@ ALTER TABLE "${to.table}" ADD CONSTRAINT "fk_${to.table}_${from.table}"
     return lines.join('\n');
   }
 
-  private renderPostman({ entities }: any) {
+  private renderPostman({ entities, includeAuth }: any) {
     const variable = [
       { key: 'baseUrl', value: 'http://localhost:8080', type: 'string' },
+      { key: 'accessToken', value: '', type: 'string' } // NUEVO
     ];
-    const item = entities.map((e: any) => {
-      const base = `{{baseUrl}}/api/${e.route}`;
-      return {
-        name: e.name,
-        item: [
-          {
-            name: `List ${e.name}`,
-            request: { method: 'GET', url: `${base}` },
-          },
-          {
-            name: `Get ${e.name} by id`,
-            request: { method: 'GET', url: `${base}/:id` },
-          },
-          {
-            name: `Create ${e.name}`,
-            request: {
-              method: 'POST',
-              url: `${base}`,
-              header: [{ key: 'Content-Type', value: 'application/json' }],
-              body: { mode: 'raw', raw: '{}' },
-            },
-          },
-          {
-            name: `Update ${e.name}`,
-            request: {
-              method: 'PUT',
-              url: `${base}/:id`,
-              header: [{ key: 'Content-Type', value: 'application/json' }],
-              body: { mode: 'raw', raw: '{}' },
-            },
-          },
-          {
-            name: `Delete ${e.name}`,
-            request: { method: 'DELETE', url: `${base}/:id` },
-          },
-        ],
-      };
-    });
+
+    const authFolder = includeAuth ? [{
+      name: 'Auth',
+      item: [
+        {
+          name: 'Register',
+          request: {
+            method: 'POST',
+            url: `{{baseUrl}}/api/auth/register`,
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: { mode: 'raw', raw: '{"email":"","password":"","fullName":""}' }
+          }
+        },
+        {
+          name: 'Login',
+          event: [{
+            listen: 'test',
+            script: {
+              exec: [
+                'let data = pm.response.json();',
+                'pm.collectionVariables.set("accessToken", data.accessToken || "");',
+              ]
+            }
+          }],
+          request: {
+            method: 'POST',
+            url: `{{baseUrl}}/api/auth/login`,
+            header: [{ key: 'Content-Type', value: 'application/json' }],
+            body: { mode: 'raw', raw: '{"email":"","password":""}' }
+          }
+        },
+        {
+          name: 'Me',
+          request: {
+            method: 'GET',
+            url: `{{baseUrl}}/api/auth/me`,
+            header: [{ key: 'Authorization', value: 'Bearer {{accessToken}}' }]
+          }
+        }
+      ]
+    }] : [];
+
+    const item = [
+      ...authFolder,
+      ...entities.map((e: any) => {
+        const base = `{{baseUrl}}/api/${e.route}`;
+        const authHeader = includeAuth ? [{ key: 'Authorization', value: 'Bearer {{accessToken}}' }] : [];
+        return {
+          name: e.name,
+          item: [
+            { name: `List ${e.name}`, request: { method: 'GET', url: `${base}`, header: authHeader } },
+            { name: `Get ${e.name}`, request: { method: 'GET', url: `${base}/:id`, header: authHeader } },
+            { name: `Create ${e.name}`, request: { method: 'POST', url: `${base}`, header: [...authHeader, { key: 'Content-Type', value: 'application/json' }], body: { mode: 'raw', raw: '{}' } } },
+            { name: `Update ${e.name}`, request: { method: 'PUT', url: `${base}/:id`, header: [...authHeader, { key: 'Content-Type', value: 'application/json' }], body: { mode: 'raw', raw: '{}' } } },
+            { name: `Delete ${e.name}`, request: { method: 'DELETE', url: `${base}/:id`, header: authHeader } },
+          ]
+        };
+      })
+    ];
+
     return {
       info: {
         name: 'ModelEditor – API',
-        schema:
-          'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+        schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
       variable,
       item,
     };
   }
+
 
   private tpl(relPath: string, ctx: any) {
     const fs = require('node:fs');
@@ -1033,13 +1133,21 @@ ALTER TABLE "${to.table}" ADD CONSTRAINT "fk_${to.table}_${from.table}"
     if (!Handlebars.helpers.eq) {
       Handlebars.registerHelper('eq', (a: any, b: any) => a === b);
     }
+
     if (!Handlebars.helpers.lower) {
       Handlebars.registerHelper('lower', (s: any) =>
         (s ?? '').toString().toLowerCase(),
       );
     }
+
+    if (!Handlebars.helpers.lc) {
+      Handlebars.registerHelper('lc', (s: any) => {
+        const str = (s ?? '').toString();
+        return str ? str.charAt(0).toLowerCase() + str.slice(1) : '';
+      });
+    }
+
     if (!Handlebars.helpers.some) {
-      // útil si tu template pregunta: {{#if (some fields "java.util.UUID")}}...
       Handlebars.registerHelper(
         'some',
         (arr: any[], val: any) =>
@@ -1049,8 +1157,24 @@ ALTER TABLE "${to.table}" ADD CONSTRAINT "fk_${to.table}_${from.table}"
           ),
       );
     }
+
     if (!Handlebars.helpers.json) {
       Handlebars.registerHelper('json', (obj: any) => JSON.stringify(obj));
+    }
+
+    // Helper `required` para templates Flutter:
+    // Uso típico esperado:
+    //   {{required flag}}           -> "required " si flag truthy, sino ""
+    //   {{#required flag}}...{{/required}} -> renderiza bloque solo si flag truthy
+    if (!Handlebars.helpers.required) {
+      Handlebars.registerHelper('required', function (this: any, v: any, opts?: any) {
+        // Block form: {{#required flag}}...{{/required}}
+        if (opts && typeof opts.fn === 'function') {
+          return v ? opts.fn(this) : (opts.inverse ? opts.inverse(this) : '');
+        }
+        // Inline form: {{required flag}}
+        return v ? 'required ' : '';
+      });
     }
 
     // Rutas dev/dist robustas
@@ -1063,7 +1187,6 @@ ALTER TABLE "${to.table}" ADD CONSTRAINT "fk_${to.table}_${from.table}"
       relPath,
     );
 
-    // si pide "flutter/..." probamos también "flutter_templates/..."
     const altRel = relPath.startsWith('flutter/')
       ? relPath.replace(/^flutter\//, 'flutter_templates/')
       : relPath;
@@ -1082,15 +1205,17 @@ ALTER TABLE "${to.table}" ADD CONSTRAINT "fk_${to.table}_${from.table}"
 
     if (!full) {
       throw new Error(`Template not found: ${relPath}
-    Checked:
-    - ${fromDist}
-    - ${fromSrc}
-    - ${altFromDist}
-    - ${altFromSrc}`);
+  Checked:
+  - ${fromDist}
+  - ${fromSrc}
+  - ${altFromDist}
+  - ${altFromSrc}`);
     }
 
     const src = fs.readFileSync(full, 'utf-8');
     const compiled = Handlebars.compile(src, { noEscape: true });
     return compiled(ctx);
   }
+
+
 }

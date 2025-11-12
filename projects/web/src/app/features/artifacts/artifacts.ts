@@ -18,7 +18,8 @@ export class ArtifactsComponent {
   migrationTool = signal<'FLYWAY' | 'LIQUIBASE'>('FLYWAY');
   items = signal<any[]>([]);
   loading = signal(false);
-
+  includeAuth = signal(true);
+  flutterBaseUrl = signal('http://localhost:8080');
   constructor(private api: ArtifactsService, route: ActivatedRoute) {
     effect(() => {
       const pid = route.snapshot.paramMap.get('projectId')!;
@@ -35,11 +36,14 @@ export class ArtifactsComponent {
 
   generate() {
     this.loading.set(true);
+    console.log(this.types(), this.packageBase(), this.dbEngine(), this.migrationTool(), this.includeAuth(), this.flutterBaseUrl());
     this.api.generate(this.projectId(), {
       types: this.types(),
       packageBase: this.packageBase(),
       dbEngine: this.dbEngine(),
       migrationTool: this.migrationTool(),
+      includeAuth: this.includeAuth(),
+      flutterBaseUrl: this.flutterBaseUrl(),
     }).subscribe({
       next: () => { this.loading.set(false); this.refresh(); },
       error: () => this.loading.set(false)
@@ -63,5 +67,5 @@ export class ArtifactsComponent {
   }
   onMigrationChange(v: string) {
     this.migrationTool.set(v as 'FLYWAY' | 'LIQUIBASE');
-  } 
+  }
 }

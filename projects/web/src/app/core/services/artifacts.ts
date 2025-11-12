@@ -6,6 +6,7 @@ export class ArtifactsService {
   private http = inject(HttpClient);
 
   generate(projectId: string, body: any) {
+    console.log(body)
     return this.http.post(`/api/projects/${projectId}/artifacts/generate`, body);
   }
 

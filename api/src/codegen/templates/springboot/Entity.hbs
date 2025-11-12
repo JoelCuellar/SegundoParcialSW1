@@ -2,6 +2,7 @@ package {{pkg}}.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.io.Serializable;
 {{#each e.fields}}
 {{#if (eq this.javaType "java.time.LocalDate")}}import java.time.LocalDate;{{/if}}
@@ -13,7 +14,11 @@ import java.io.Serializable;
 @Entity
 @Table(name = "{{e.table}}")
 {{#if e.inheritanceBase}}@Inheritance(strategy = InheritanceType.JOINED){{/if}}
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class {{e.name}}{{#if e.extends}} extends {{e.extends}}{{/if}} implements Serializable{{#if e.implements.length}}, {{#each e.implements}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{/if}} {
 
   {{#each e.fields}}
@@ -22,8 +27,10 @@ public class {{e.name}}{{#if e.extends}} extends {{e.extends}}{{/if}} implements
   private {{this.javaType}} {{this.name}};
   {{/each}}
 
+  {{#if e.relationFields}}
   {{#each e.relationFields}}
   {{{this}}}
 
   {{/each}}
+  {{/if}}
 }

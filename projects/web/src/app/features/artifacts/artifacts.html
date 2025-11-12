@@ -3,11 +3,8 @@
 <div class="artifacts-card">
   <div class="artifact-types">
     <label class="artifact-option">
-      <input
-        type="checkbox"
-        [checked]="types().includes('SPRING_BOOT_PROJECT')"
-        (change)="toggle('SPRING_BOOT_PROJECT')"
-      />
+      <input type="checkbox" [checked]="types().includes('SPRING_BOOT_PROJECT')"
+        (change)="toggle('SPRING_BOOT_PROJECT')" />
       <div class="artifact-label">
         <span class="artifact-title">Spring Boot CRUD</span>
         <span class="artifact-desc">Proyecto base con endpoints y capas generadas.</span>
@@ -15,11 +12,8 @@
     </label>
 
     <label class="artifact-option">
-      <input
-        type="checkbox"
-        [checked]="types().includes('POSTMAN_COLLECTION')"
-        (change)="toggle('POSTMAN_COLLECTION')"
-      />
+      <input type="checkbox" [checked]="types().includes('POSTMAN_COLLECTION')"
+        (change)="toggle('POSTMAN_COLLECTION')" />
       <div class="artifact-label">
         <span class="artifact-title">Postman Collection</span>
         <span class="artifact-desc">Colección para probar los endpoints generados.</span>
@@ -27,11 +21,7 @@
     </label>
 
     <label class="artifact-option">
-      <input
-        type="checkbox"
-        [checked]="types().includes('FLUTTER_APP')"
-        (change)="toggle('FLUTTER_APP')"
-      />
+      <input type="checkbox" [checked]="types().includes('FLUTTER_APP')" (change)="toggle('FLUTTER_APP')" />
       <div class="artifact-label">
         <span class="artifact-title">Flutter App</span>
         <span class="artifact-desc">Frontend base en Flutter para consumir el API.</span>
@@ -39,26 +29,30 @@
     </label>
   </div>
 
+  <label class="artifact-option">
+    <input type="checkbox" [checked]="includeAuth()" (change)="includeAuth.set(!includeAuth())" />
+    <div class="artifact-label">
+      <span class="artifact-title">Autenticación (JWT)</span>
+      <span class="artifact-desc">User + Security + JWT + endpoints /auth.</span>
+    </div>
+  </label>
+
+  <label class="field">
+    <span class="field-label">Flutter Base URL</span>
+    <input class="field-input" #fbase [value]="flutterBaseUrl()" (input)="flutterBaseUrl.set(fbase.value)"
+      placeholder="http://localhost:8080" />
+  </label>
+
   <div class="artifact-config">
     <label class="field">
       <span class="field-label">Package Base</span>
-      <input
-        class="field-input"
-        #pkg
-        [value]="packageBase()"
-        (input)="packageBase.set(pkg.value)"
-        placeholder="com.ejemplo.demo"
-      />
+      <input class="field-input" #pkg [value]="packageBase()" (input)="packageBase.set(pkg.value)"
+        placeholder="com.ejemplo.demo" />
     </label>
 
     <label class="field">
       <span class="field-label">DB Engine</span>
-      <select
-        class="field-input"
-        #dbsel
-        [value]="dbEngine()"
-        (change)="onDbEngineChange(dbsel.value)"
-      >
+      <select class="field-input" #dbsel [value]="dbEngine()" (change)="onDbEngineChange(dbsel.value)">
         <option>POSTGRESQL</option>
         <option>MYSQL</option>
         <option>MARIADB</option>
@@ -68,12 +62,7 @@
 
     <label class="field">
       <span class="field-label">Migrations</span>
-      <select
-        class="field-input"
-        #migr
-        [value]="migrationTool()"
-        (change)="onMigrationChange(migr.value)"
-      >
+      <select class="field-input" #migr [value]="migrationTool()" (change)="onMigrationChange(migr.value)">
         <option>FLYWAY</option>
         <option>LIQUIBASE</option>
       </select>

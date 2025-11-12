@@ -12,8 +12,9 @@ export class CodegenController {
   @Post('generate')
   async generate(
     @Param('projectId') projectId: string,
-    @Body() body: GenerateDto,
+    @Body() body: any,
   ) {
+    console.log(body)
     return this.svc.generateArtifacts(projectId, body);
   }
 
